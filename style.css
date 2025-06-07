@@ -1,148 +1,84 @@
-/* Reset básico */
-* {
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f9f2;
+  color: #034d02;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
 }
-
-body {
-  background-color: #f0f4f8;
-  color: #022c22; /* verde oscuro */
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
 header {
-  background: linear-gradient(90deg, #fff 0%, #b2d8b2 50%, #0077b6 100%);
-  padding: 1rem;
+  background: #006400;
+  color: white;
+  padding: 1em 0;
   text-align: center;
-  color: #004d40;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
-
-header h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-
 nav {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  gap: 0.5rem;
+  background: #009933;
+  padding: 0.5em 0;
 }
-
 nav button {
-  background-color: #0077b6;
-  color: white;
+  background: transparent;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  padding: 0.5em 1.2em;
+  margin: 0 0.5em;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background 0.3s ease;
 }
-
 nav button:hover {
-  background-color: #005f86;
+  background: #003300;
+  border-radius: 4px;
 }
-
 main {
-  flex-grow: 1;
-  padding: 1rem;
   max-width: 900px;
-  margin: 0 auto;
+  margin: 2em auto;
+  background: white;
+  padding: 2em;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #b0d6a8;
 }
-
-.seccion {
+section {
   display: none;
 }
-
-.seccion.visible {
+section.active {
   display: block;
-  margin-top: 1rem;
 }
-
-h2 {
-  margin-bottom: 0.5rem;
-  color: #004d40;
-}
-
-/* Estilo para inputs y botones en administración */
-#administracion input[type="password"] {
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #0077b6;
-  border-radius: 4px;
-  margin-right: 0.5rem;
-}
-
-#administracion button {
-  background-color: #004d40;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-#administracion button:hover {
-  background-color: #00291b;
-}
-
-/* Tabla base */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
+  margin-top: 1em;
 }
-
-table th,
-table td {
-  padding: 0.6rem;
-  border: 1px solid #0077b6;
+th, td {
+  border: 1px solid #009933;
+  padding: 0.5em;
   text-align: center;
 }
-
-table th {
-  background-color: #b2d8b2;
-  color: #004d40;
+th {
+  background: #009933;
+  color: white;
+}
+.error {
+  color: red;
+}
+input[type="number"], input[type="password"] {
+  padding: 0.3em;
+  width: 50px;
+  text-align: center;
+  margin-left: 0.5em;
+}
+button.save-resultados {
+  background: #006400;
+  color: white;
+  border: none;
+  padding: 0.6em 1.2em;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 1em;
   font-weight: bold;
 }
-
-/* Modo oscuro */
-body.dark {
-  background-color: #121212;
-  color: #a5d6a7;
-}
-
-body.dark header {
-  background: linear-gradient(90deg, #263238 0%, #455a64 50%, #1e88e5 100%);
-  color: #a5d6a7;
-}
-
-body.dark nav button {
-  background-color: #1e88e5;
-  color: #fff;
-}
-
-body.dark nav button:hover {
-  background-color: #1565c0;
-}
-
-body.dark table th {
-  background-color: #37474f;
-  color: #a5d6a7;
-}
-
-body.dark table td {
-  border-color: #90caf9;
-}
-
-body.dark #administracion button {
-  background-color: #1565c0;
-}
-
-body.dark #administracion button:hover {
-  background-color: #0d47a1;
+button.save-resultados:hover {
+  background: #004d00;
 }
