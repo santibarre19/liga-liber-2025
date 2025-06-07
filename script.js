@@ -248,3 +248,132 @@ function calcularPosiciones() {
 
 // Mostrar posiciones cuando se cambie a esa sección
 document.getElementById("btn-posiciones").addEventListener("click", calcularPosiciones);
+// Variable para controlar si estás logueado para editar
+let logueado = false;
+
+// Función para mostrar el formulario de login (contraseña)
+function mostrarLogin() {
+  const adminDiv = document.getElementById("administracion");
+  adminDiv.innerHTML = `
+    <h2>Administración - Iniciar Sesión</h2>
+    <input type="password" id="passAdmin" placeholder="Contraseña">
+    <button id="btnLogin">Entrar</button>
+    <p id="mensajeLogin" style="color:red;"></p>
+  `;
+
+  document.getElementById("btnLogin").addEventListener("click", () => {
+    const pass = document.getElementById("passAdmin").value;
+    if (pass === "Excursio2016") {
+      logueado = true;
+      mostrarAdmin();
+    } else {
+      document.getElementById("mensajeLogin").textContent = "Contraseña incorrecta";
+    }
+  });
+}
+
+// Función para mostrar el panel de edición de resultados y goleadores
+function mostrarAdmin() {
+  if (!logueado) {
+    mostrarLogin();
+    return;
+  }
+  
+  const adminDiv = document.getElementById("administracion");
+  adminDiv.innerHTML = "<h2>Administración - Editar Resultados</h2>";
+
+  partidos.forEach((p, i) => {
+    const equipoLocal = equipos.find(e => e.id === p.local);
+    const equipoVisitante = equipos.find(e => e.id === p.visitante);
+
+    const partidoDiv = document.createElement("div");
+    partidoDiv.style.border = "1px solid #ccc";
+    partidoDiv.style.marginBottom = "10px";
+    partidoDiv.style.padding = "10px";
+
+    partidoDiv.innerHTML = `
+      <strong>Fecha ${p.fecha}:</strong> ${equipoLocal.nombre} vs ${equipoVisitante.nombre} <br>
+      Goles ${equipoLocal.nombre}: <input type="number" min="0" id="golesLocal${i}" value="${p.golesLocal !== null ? p.golesLocal : ''}" style="width:50px;">
+      Goles ${equipoVisitante.nombre}: <input type="number" min="0" id="golesVisitante${i}" value="${p.golesVisitante !== null ? p.golesVisitante : ''}" style="width:50px;"><br><br>
+      
+      Goleadores ${equipoLocal.nombre} (separar con coma): <input type="text" id="goleadoresLocal${i}" value="${p.goleadoresLocal.join(", ")}" style="width: 300px;"><br>
+      Goleadores ${equipoVisitante.nombre} (separar con coma): <input type="text" id="goleadoresVisitante${i}" value="${p.goleadoresVisitante.join(", ")}" style="width: 300px;"><br>
+    `;
+
+    adminDiv.appendChild(partidoDiv);
+  });
+
+  const guardarBtn = document.createElement("button");
+  guardarBtn.textContent = "Guardar Cambios";
+  guardarBtn.addEventListener("click", () => {
+    for (let i = 0; i < partidos.length; i++) {
+      const golesL = document.getElementById(`golesLocal${i}`).value;
+      const golesV = document.getElementById(`golesVisitante${i}`).value;
+      const goleadoresL = document.getElementById(`goleadoresLocal${i}`).value;
+      const goleadoresV = document.getElementById(`goleadoresVisitante${i}`).value;
+
+      partidos[i].golesLocal = golesL === "" ? null : parseInt(golesL);
+      partidos[i].golesVisitante = golesV === "" ? null : parseInt(golesV);
+      partidos[i].goleadoresLocal = goleadoresL === "" ? [] : goleadoresL.split(",").map(g => g.trim()).filter(g => g !== "");
+      partidos[i].goleadoresVisitante = goleadoresV === "" ? [] : goleadoresV.split(",").map(g => g.trim()).filter(g => g !== "");
+    }
+
+    // Actualizar tablas automáticamente
+    calcularPosiciones();
+    mostrarFixture();
+    mostrarGoleadores();
+    alert("Cambios guardados.");
+  });
+
+  adminDiv.appendChild(guardarBtn);
+}
+
+// Función para mostrar tabla de goleadores sumando todos los partidos
+function mostrarGoleadores() {
+  const goleSection = document.getElementById("goleadores");
+  goleSection.innerHTML = "<h2>Tabla de Goleadores</h2>";
+
+  // Objeto para acumular goleadores {nombre: goles}
+  const goleadoresTotales = {};
+
+  partidos.forEach(p => {
+    p.goleadoresLocal.forEach(g => {
+      goleadoresTotales[g] = (goleadoresTotales[g] || 0) + 1;
+    });
+    p.goleadoresVisitante.forEach(g => {
+      goleadoresTotales[g] = (goleadoresTotales[g] || 0) + 1;
+    });
+  });
+
+  // Pasar a array y ordenar
+  const listaGoleadores = Object.entries(goleadoresTotales).sort((a,b) => b[1] - a[1]);
+
+  if (listaGoleadores.length === 0) {
+    goleSection.innerHTML += "<p>No hay goles registrados aún.</p>";
+    return;
+  }
+
+  const tabla = document.createElement("table");
+  const thead = document.createElement("thead");
+  const trHead = document.createElement("tr");
+  ["Pos", "Jugador", "Goles"].forEach(text => {
+    const th = document.createElement("th");
+    th.textContent = text;
+    trHead.appendChild(th);
+  });
+  thead.appendChild(trHead);
+  tabla.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  listaGoleadores.forEach(([nombre, goles], i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${i+1}</td><td>${nombre}</td><td>${goles}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  tabla.appendChild(tbody);
+  goleSection.appendChild(tabla);
+}
+
+// Mostrar login o panel admin al entrar en esa sección
+document.getElementById("btn-admin").addEventListener("click", mostrarLogin);
