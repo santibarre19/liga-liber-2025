@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LIGA LIBER 2025</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>LIGA LIBER 2025</h1>
+    <nav>
+      <button id="btn-posiciones">Posiciones</button>
+      <button id="btn-fixture">Fixture</button>
+      <button id="btn-goleadores">Goleadores</button>
+      <button id="btn-reglas">Reglas</button>
+      <button id="btn-jugadores">Jugadores</button>
+      <button id="btn-estadisticas">Estadísticas</button>
+      <button id="btn-noticias">Noticias</button>
+      <button id="btn-admin">Administración</button>
+      <button id="btn-modo">Modo Oscuro</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="posiciones" class="seccion visible">
+      <!-- Tabla de posiciones se cargará acá -->
+    </section>
+    <section id="fixture" class="seccion">
+      <!-- Fixture se cargará acá -->
+    </section>
+    <section id="goleadores" class="seccion">
+      <!-- Tabla de goleadores se cargará acá -->
+    </section>
+    <section id="reglas" class="seccion">
+      <h2>Reglas y Formato del Torneo</h2>
+      <p>El torneo LIGA LIBER 2025 tiene 6 equipos que juegan todos contra todos...</p>
+      <!-- Podés completar con las reglas que quieras -->
+    </section>
+    <section id="jugadores" class="seccion">
+      <!-- Perfil de jugadores -->
+    </section>
+    <section id="estadisticas" class="seccion">
+      <!-- Estadísticas -->
+    </section>
+    <section id="noticias" class="seccion">
+      <!-- Noticias y avisos -->
+    </section>
+    <section id="administracion" class="seccion">
+      <h2>Panel de Administración</h2>
+      <p>Ingresá la contraseña para editar:</p>
+      <input type="password" id="password" />
+      <button id="btn-login">Ingresar</button>
+      <div id="admin-content" style="display:none;">
+        <!-- Panel para cargar resultados, editar equipos, etc -->
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
