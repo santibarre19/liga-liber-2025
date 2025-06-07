@@ -1,316 +1,114 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>LIGA LIBER 2025</title>
-<style>
-  body { font-family: Arial, sans-serif; margin: 0; background: #f4f7f9; color: #333; }
-  header { background: #1b4d3e; color: white; padding: 15px; text-align: center; }
-  nav { background: #2e8b57; display: flex; justify-content: center; }
-  nav button {
-    background: #2e8b57; border: none; color: white; padding: 12px 20px; cursor: pointer;
-    font-weight: bold; transition: background 0.3s;
-  }
-  nav button:hover, nav button.active { background: #1b4d3e; }
-  section { padding: 20px; max-width: 900px; margin: 0 auto; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-top: 20px; }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-  th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-  th { background: #2e8b57; color: white; }
-  #administracion input[type="number"], #administracion input[type="text"], #administracion input[type="password"] {
-    padding: 5px; margin: 5px 0; width: 100px; max-width: 100%;
-  }
-  #administracion button {
-    margin-top: 10px; padding: 10px 20px; background: #1b4d3e; color: white; border: none; cursor: pointer;
-  }
-  #administracion button:hover { background: #14532d; }
-  .error { color: red; margin-top: 10px; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LIGA LIBER 2025</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #e8f0f8;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: linear-gradient(90deg, #004080, #3399ff, #007a33);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 2em;
+      font-weight: bold;
+    }
+    nav {
+      display: flex;
+      background: #004080;
+      justify-content: center;
+      gap: 15px;
+    }
+    nav button {
+      background: #007a33;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background 0.3s;
+    }
+    nav button:hover {
+      background: #3399ff;
+    }
+    section {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 10px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #004080;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #3399ff;
+      color: white;
+    }
+    .error {
+      color: red;
+      margin-top: 5px;
+    }
+    input[type=number], input[type=password] {
+      width: 60px;
+      padding: 5px;
+      margin-left: 5px;
+      text-align: center;
+    }
+    label {
+      margin-right: 15px;
+    }
+    #administracion button {
+      margin-top: 10px;
+      background: #007a33;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
+  <header>LIGA LIBER 2025</header>
 
-<header>
-  <h1>LIGA LIBER 2025</h1>
-</header>
+  <nav>
+    <button onclick="mostrarSeccion('posiciones')">Posiciones</button>
+    <button onclick="mostrarSeccion('fixture')">Fixture</button>
+    <button onclick="mostrarSeccion('goleadores')">Goleadores</button>
+    <button onclick="mostrarSeccion('administracion')">Administración</button>
+  </nav>
 
-<nav>
-  <button class="tab-btn active" data-tab="posiciones">Posiciones</button>
-  <button class="tab-btn" data-tab="fixture">Fixture</button>
-  <button class="tab-btn" data-tab="goleadores">Goleadores</button>
-  <button class="tab-btn" data-tab="administracion" id="btn-admin">Administración</button>
-</nav>
+  <section id="posiciones"></section>
+  <section id="fixture" style="display:none;"></section>
+  <section id="goleadores" style="display:none;"></section>
+  <section id="administracion" style="display:none;"></section>
 
-<section id="posiciones"></section>
-<section id="fixture" style="display:none;"></section>
-<section id="goleadores" style="display:none;"></section>
-<section id="administracion" style="display:none;"></section>
-
-<script>
-  // Equipos y datos iniciales
-  const equipos = [
-    { id: 1, nombre: "Primero", color: "#FFFFFF", escudo: "" },
-    { id: 2, nombre: "Segundo Lenguas", color: "#004080", escudo: "" },
-    { id: 3, nombre: "Segundo Sociales", color: "#007a33", escudo: "" },
-    { id: 4, nombre: "Cuarto", color: "#0055a4", escudo: "" },
-    { id: 5, nombre: "Quinto Lenguas", color: "#3399ff", escudo: "" },
-    { id: 6, nombre: "Quinto Sociales", color: "#008000", escudo: "" },
-  ];
-
-  // Fixture aleatorio pero con el orden especial para Quinto Lenguas
-  const fechas = ["13/6", "20/6", "27/6", "4/7", "11/7", "18/7", "1/8", "8/8"];
-
-  // Crear partidos (todos contra todos)
-  let partidos = [];
-
-  function generarFixture() {
-    // Equipos para fixture con orden fijo para Quinto Lenguas
-    // Este orden para los partidos de Quinto Lenguas: Primero, Segundo Sociales, Segundo Lenguas, Quinto Sociales, Cuarto
-    // Los demás equipos ordenados normalmente
-    // Para simplificar, vamos a generar fixture fijo que cumpla el pedido y no aleatorio para evitar líos
-
-    // Aquí un fixture fijo para 6 equipos todos contra todos en 5 fechas con 3 partidos por fecha
-    partidos = [
-      // Fecha 1 (13/6)
-      { fecha: fechas[0], local: 1, visitante: 3, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      { fecha: fechas[0], local: 2, visitante: 6, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      { fecha: fechas[0], local: 5, visitante: 4, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      // Fecha 2 (20/6)
-      { fecha: fechas[1], local: 1, visitante: 6, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      { fecha: fechas[1], local: 2, visitante: 3, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      { fecha: fechas[1], local: 4, visitante: 5, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      // Fecha 3 (27/6)
-      { fecha: fechas[2], local: 1, visitante: 2, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      { fecha: fechas[2], local: 3, visitante: 5, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      { fecha: fechas[2], local: 6, visitante: 4, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      // Fecha 4 (4/7)
-      { fecha: fechas[3], local: 1, visitante: 5, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      { fecha: fechas[3], local: 3, visitante: 6, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      { fecha: fechas[3], local: 4, visitante: 2, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      // Fecha 5 (11/7)
-      { fecha: fechas[4], local: 2, visitante: 5, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      { fecha: fechas[4], local: 3, visitante: 4, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] },
-      { fecha: fechas[4], local: 6, visitante: 1, golesLocal: null, golesVisitante: null, goleadoresLocal: [], goleadoresVisitante: [] }
-    ];
-  }
-
-  // Estado y funciones para posiciones y resultados
-  let posiciones = [];
-
-  function calcularPosiciones() {
-    // Inicializar
-    posiciones = equipos.map(e => ({
-      id: e.id,
-      nombre: e.nombre,
-      puntos: 0,
-      partidosJugados: 0,
-      ganados: 0,
-      empatados: 0,
-      perdidos: 0,
-      golesFavor: 0,
-      golesContra: 0,
-      diferencia: 0
-    }));
-
-    partidos.forEach(p => {
-      if (p.golesLocal !== null && p.golesVisitante !== null) {
-        const local = posiciones.find(pos => pos.id === p.local);
-        const visitante = posiciones.find(pos => pos.id === p.visitante);
-        local.partidosJugados++;
-        visitante.partidosJugados++;
-
-        local.golesFavor += p.golesLocal;
-        local.golesContra += p.golesVisitante;
-        visitante.golesFavor += p.golesVisitante;
-        visitante.golesContra += p.golesLocal;
-
-        if (p.golesLocal > p.golesVisitante) {
-          local.ganados++;
-          local.puntos += 3;
-          visitante.perdidos++;
-        } else if (p.golesLocal < p.golesVisitante) {
-          visitante.ganados++;
-          visitante.puntos += 3;
-          local.perdidos++;
-        } else {
-          local.empatados++;
-          visitante.empatados++;
-          local.puntos++;
-          visitante.puntos++;
-        }
-      }
-    });
-
-    posiciones.forEach(p => {
-      p.diferencia = p.golesFavor - p.golesContra;
-    });
-
-    posiciones.sort((a,b) => b.puntos - a.puntos || b.diferencia - a.diferencia || b.golesFavor - a.golesFavor);
-  }
-
-  // Mostrar posiciones
-  function mostrarPosiciones() {
-    const div = document.getElementById("posiciones");
-    div.innerHTML = "<h2>Tabla de Posiciones</h2>";
-    if (posiciones.length === 0) {
-      div.innerHTML += "<p>No hay datos aún.</p>";
-      return;
-    }
-    let html = `<table>
-      <thead><tr>
-        <th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>Dif</th><th>Puntos</th>
-      </tr></thead><tbody>`;
-    posiciones.forEach((p, i) => {
-      html += `<tr>
-        <td>${i+1}</td>
-        <td>${p.nombre}</td>
-        <td>${p.partidosJugados}</td>
-        <td>${p.ganados}</td>
-        <td>${p.empatados}</td>
-        <td>${p.perdidos}</td>
-        <td>${p.golesFavor}</td>
-        <td>${p.golesContra}</td>
-        <td>${p.diferencia}</td>
-        <td>${p.puntos}</td>
-      </tr>`;
-    });
-    html += "</tbody></table>";
-    div.innerHTML += html;
-  }
-
-  // Mostrar fixture
-  function mostrarFixture() {
-    const div = document.getElementById("fixture");
-    div.innerHTML = "<h2>Fixture</h2>";
-    if (partidos.length === 0) {
-      div.innerHTML += "<p>No hay partidos programados.</p>";
-      return;
-    }
-
-    // Agrupar partidos por fecha
-    const fechasUnicas = [...new Set(partidos.map(p => p.fecha))];
-
-    let html = "";
-    fechasUnicas.forEach(fecha => {
-      html += `<h3>Fecha: ${fecha}</h3><table>
-      <thead><tr><th>Local</th><th>Visitante</th><th>Resultado</th></tr></thead><tbody>`;
-
-      partidos.filter(p => p.fecha === fecha).forEach(p => {
-        const local = equipos.find(e => e.id === p.local);
-        const visitante = equipos.find(e => e.id === p.visitante);
-        const resultado = (p.golesLocal !== null && p.golesVisitante !== null) ? `${p.golesLocal} - ${p.golesVisitante}` : "-";
-        html += `<tr>
-          <td>${local.nombre}</td>
-          <td>${visitante.nombre}</td>
-          <td>${resultado}</td>
-        </tr>`;
+  <script src="script.js"></script>
+  <script>
+    function mostrarSeccion(id) {
+      ["posiciones", "fixture", "goleadores", "administracion"].forEach(sec => {
+        document.getElementById(sec).style.display = sec === id ? "block" : "none";
       });
-
-      html += "</tbody></table>";
-    });
-
-    div.innerHTML += html;
-  }
-
-  // Tabla goleadores (simplificada)
-  function mostrarGoleadores() {
-    const div = document.getElementById("goleadores");
-    div.innerHTML = "<h2>Tabla de Goleadores</h2>";
-
-    // Contar goles por jugador (en este ejemplo no hay jugadores definidos, solo muestra vacío)
-    div.innerHTML += "<p>Función en desarrollo. Se actualizará cuando ingreses goleadores en administración.</p>";
-  }
-
-  // Administración: login simple con contraseña
-  const passAdmin = "Excursio2016";
-  let adminLogged = false;
-
-  function mostrarAdministracion() {
-    const div = document.getElementById("administracion");
-    if (!adminLogged) {
-      div.innerHTML = `
-        <h2>Ingreso de administrador</h2>
-        <input type="password" id="pass" placeholder="Contraseña" />
-        <button onclick="login()">Entrar</button>
-        <p id="error" class="error"></p>
-      `;
-    } else {
-      div.innerHTML = `
-        <h2>Administración de resultados</h2>
-        <p>Aquí podés ingresar resultados de partidos para actualizar la tabla.</p>
-        <div id="form-partidos"></div>
-        <button onclick="logout()">Cerrar sesión</button>
-      `;
-      mostrarFormularioPartidos();
     }
-  }
-
-  function login() {
-    const pass = document.getElementById("pass").value;
-    if (pass === passAdmin) {
-      adminLogged = true;
-      mostrarAdministracion();
-    } else {
-      document.getElementById("error").innerText = "Contraseña incorrecta";
-    }
-  }
-
-  function logout() {
-    adminLogged = false;
-    mostrarAdministracion();
-  }
-
-  // Formulario para ingresar resultados
-  function mostrarFormularioPartidos() {
-    const div = document.getElementById("form-partidos");
-    let html = "";
-    partidos.forEach((p, i) => {
-      const local = equipos.find(e => e.id === p.local);
-      const visitante = equipos.find(e => e.id === p.visitante);
-      html += `<div style="margin-bottom:10px;">
-        <b>${p.fecha} - ${local.nombre} vs ${visitante.nombre}</b><br />
-        <label>Goles ${local.nombre}: <input type="number" min="0" id="golesLocal-${i}" value="${p.golesLocal !== null ? p.golesLocal : ''}"></label>
-        <label> Goles ${visitante.nombre}: <input type="number" min="0" id="golesVisitante-${i}" value="${p.golesVisitante !== null ? p.golesVisitante : ''}"></label>
-      </div>`;
-    });
-    html += `<button onclick="guardarResultados()">Guardar resultados</button>`;
-    div.innerHTML = html;
-  }
-
-  function guardarResultados() {
-    partidos.forEach((p, i) => {
-      const gl = document.getElementById(`golesLocal-${i}`).value;
-      const gv = document.getElementById(`golesVisitante-${i}`).value;
-      p.golesLocal = gl === "" ? null : parseInt(gl);
-      p.golesVisitante = gv === "" ? null : parseInt(gv);
-    });
-    calcularPosiciones();
-    mostrarPosiciones();
-    mostrarFixture();
-    alert("Resultados guardados y tablas actualizadas.");
-  }
-
-  // Cambiar entre pestañas
-  const botonesTabs = document.querySelectorAll(".tab-btn");
-  botonesTabs.forEach(btn => {
-    btn.addEventListener("click", () => {
-      botonesTabs.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      const tab = btn.getAttribute("data-tab");
-      document.querySelectorAll("section").forEach(sec => {
-        sec.style.display = sec.id === tab ? "block" : "none";
-      });
-      if (tab === "posiciones") mostrarPosiciones();
-      if (tab === "fixture") mostrarFixture();
-      if (tab === "goleadores") mostrarGoleadores();
-      if (tab === "administracion") mostrarAdministracion();
-    });
-  });
-
-  // Inicialización
-  generarFixture();
-  calcularPosiciones();
-  mostrarPosiciones();
-</script>
-
+    mostrarSeccion("posiciones");
+  </script>
 </body>
 </html>
