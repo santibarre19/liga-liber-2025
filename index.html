@@ -4,111 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>LIGA LIBER 2025</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #e8f0f8;
-      color: #333;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: linear-gradient(90deg, #004080, #3399ff, #007a33);
-      color: white;
-      padding: 20px;
-      text-align: center;
-      font-size: 2em;
-      font-weight: bold;
-    }
-    nav {
-      display: flex;
-      background: #004080;
-      justify-content: center;
-      gap: 15px;
-    }
-    nav button {
-      background: #007a33;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-size: 1em;
-      transition: background 0.3s;
-    }
-    nav button:hover {
-      background: #3399ff;
-    }
-    section {
-      max-width: 900px;
-      margin: 20px auto;
-      padding: 10px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-    }
-    h2 {
-      color: #004080;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background-color: #3399ff;
-      color: white;
-    }
-    .error {
-      color: red;
-      margin-top: 5px;
-    }
-    input[type=number], input[type=password] {
-      width: 60px;
-      padding: 5px;
-      margin-left: 5px;
-      text-align: center;
-    }
-    label {
-      margin-right: 15px;
-    }
-    #administracion button {
-      margin-top: 10px;
-      background: #007a33;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      cursor: pointer;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>LIGA LIBER 2025</header>
 
-  <nav>
-    <button onclick="mostrarSeccion('posiciones')">Posiciones</button>
-    <button onclick="mostrarSeccion('fixture')">Fixture</button>
-    <button onclick="mostrarSeccion('goleadores')">Goleadores</button>
-    <button onclick="mostrarSeccion('administracion')">Administración</button>
-  </nav>
+<header>
+  <h1>LIGA LIBER 2025</h1>
+</header>
 
-  <section id="posiciones"></section>
-  <section id="fixture" style="display:none;"></section>
-  <section id="goleadores" style="display:none;"></section>
-  <section id="administracion" style="display:none;"></section>
+<nav>
+  <button onclick="mostrarSeccion('posiciones')">Posiciones</button>
+  <button onclick="mostrarSeccion('fixture')">Fixture</button>
+  <button onclick="mostrarSeccion('goleadores')">Goleadores</button>
+  <button onclick="mostrarSeccion('administracion')">Administración</button>
+</nav>
 
-  <script src="script.js"></script>
-  <script>
-    function mostrarSeccion(id) {
-      ["posiciones", "fixture", "goleadores", "administracion"].forEach(sec => {
-        document.getElementById(sec).style.display = sec === id ? "block" : "none";
-      });
-    }
-    mostrarSeccion("posiciones");
-  </script>
+<main>
+  <section id="posiciones" class="active"></section>
+  <section id="fixture"></section>
+  <section id="goleadores"></section>
+  <section id="administracion"></section>
+</main>
+
+<script src="script.js"></script>
+<script>
+  function mostrarSeccion(id) {
+    document.querySelectorAll('main section').forEach(sec => {
+      sec.classList.remove('active');
+    });
+    document.getElementById(id).classList.add('active');
+  }
+  
+  // Inicializamos la página mostrando posiciones y administración sin login
+  mostrarSeccion('posiciones');
+  mostrarAdministracion();
+</script>
+
 </body>
 </html>
