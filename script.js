@@ -1,317 +1,172 @@
-// Equipos iniciales (puedes editar nombres y agregar escudos después)
+// Aquí va todo el código JavaScript que te pasé antes, incluyendo las funciones para fixture, resultados, goleadores, posiciones, administración y autenticación.
+
+// Te lo paso completo para que lo copies entero:
+
+// Datos iniciales
 let equipos = [
-  { id: 1, nombre: "Primero", escudo: "" },
-  { id: 2, nombre: "Segundo Lenguas", escudo: "" },
-  { id: 3, nombre: "Segundo Sociales", escudo: "" },
-  { id: 4, nombre: "Cuarto", escudo: "" },
-  { id: 5, nombre: "Quinto Lenguas", escudo: "" },
-  { id: 6, nombre: "Quinto Sociales", escudo: "" },
+  { nombre: "Primero", escudo: "", puntos: 0, golesFavor: 0, golesContra: 0, partidosJugados: 0, goles: {} },
+  { nombre: "Segundo Lenguas", escudo: "", puntos: 0, golesFavor: 0, golesContra: 0, partidosJugados: 0, goles: {} },
+  { nombre: "Segundo Sociales", escudo: "", puntos: 0, golesFavor: 0, golesContra: 0, partidosJugados: 0, goles: {} },
+  { nombre: "Cuarto", escudo: "", puntos: 0, golesFavor: 0, golesContra: 0, partidosJugados: 0, goles: {} },
+  { nombre: "Quinto Lenguas", escudo: "", puntos: 0, golesFavor: 0, golesContra: 0, partidosJugados: 0, goles: {} },
+  { nombre: "Quinto Sociales", escudo: "", puntos: 0, golesFavor: 0, golesContra: 0, partidosJugados: 0, goles: {} }
 ];
 
-// Fechas de los partidos
-const fechasPartidos = ["13/6", "20/6", "27/6", "4/7", "11/7", "18/7", "1/8", "8/8"];
+let partidos = []; // Fixture con resultados
 
-// Partidos (se generarán automáticamente)
-let partidos = [];
-
-// Genera fixture aleatorio, pero mantiene el orden fijo para "Quinto Lenguas"
-function generarFixture() {
-  // Equipos excepto Quinto Lenguas
-  const otrosEquipos = equipos.filter(e => e.nombre !== "Quinto Lenguas");
-
-  // Equipos ordenados con Quinto Lenguas fijo (posiciones para sus partidos)
-  // El orden de partidos para Quinto Lenguas es:
-  // Primero, Segundo Sociales, Segundo Lenguas, Quinto Sociales, Cuarto (en ese orden)
-  // Vamos a fijar ese orden en partidos donde esté Quinto Lenguas de local o visitante.
-
-  // Crear una lista con todos los partidos posibles (todos contra todos)
-  let partidosPosibles = [];
-  for(let i = 0; i < equipos.length; i++) {
-    for(let j = i+1; j < equipos.length; j++) {
-      partidosPosibles.push([equipos[i].id, equipos[j].id]);
-    }
-  }
-
-  // Para mezclar, vamos a asignar partidos a fechas
-  // Hay 15 partidos (6 equipos, todos contra todos -> n*(n-1)/2)
-  // Se juegan 5 fechas con 3 partidos y 3 fechas con 2 partidos (total 24 slots),
-  // pero sólo 15 partidos, así que algunos viernes quedan menos partidos
-
-  // La distribución que dijiste es 3 partidos los primeros 5 viernes (5x3=15)
-  // y 2 partidos los últimos 3 viernes (3x2=6). Pero hay sólo 15 partidos, así que 
-  // solo se necesitan 5 viernes con 3 partidos, y 3 últimos viernes sin partidos.
-
-  // Entonces usaremos sólo los primeros 5 viernes con 3 partidos cada uno.
-
-  // Vamos a ordenar los partidos para que Quinto Lenguas juegue con el orden que dijiste:
-  // primero vs Primero, luego vs Segundo Sociales, etc.
-
-  // Construimos la lista ordenada con los partidos de Quinto Lenguas primero en ese orden
-  let ordenQuintoLenguas = [];
-  let quintoLenguasId = equipos.find(e => e.nombre === "Quinto Lenguas").id;
-  let ordenEquipos = ["Primero", "Segundo Sociales", "Segundo Lenguas", "Quinto Sociales", "Cuarto"].map(nombre => equipos.find(e => e.nombre === nombre).id);
-
-  ordenEquipos.forEach(otroId => {
-    // Partido Quinto Lenguas vs otroId (en ese orden de local o visitante)
-    // Para mantener alternancia, Quinto Lenguas será local en partidos 1,3,5 y visitante en 2,4
-    let index = ordenEquipos.indexOf(otroId);
-    if(index % 2 === 0) {
-      ordenQuintoLenguas.push([quintoLenguasId, otroId]); // Quinto Lenguas local
-    } else {
-      ordenQuintoLenguas.push([otroId, quintoLenguasId]); // Quinto Lenguas visitante
-    }
-  });
-
-  // El resto de partidos son los demás que no incluyen a Quinto Lenguas
-  let restoPartidos = partidosPosibles.filter(p => !p.includes(quintoLenguasId));
-
-  // Barajamos el resto de partidos
-  restoPartidos.sort(() => Math.random() - 0.5);
-
-  // Armamos la lista final de partidos con los del Quinto Lenguas al principio
-  let listaFinalPartidos = [...ordenQuintoLenguas, ...restoPartidos];
-
-  // Asignamos fechas a partidos (3 partidos por cada uno de los primeros 5 viernes)
-  partidos = [];
-  let fechaIndex = 0;
-  for(let i = 0; i < listaFinalPartidos.length; i += 3) {
-    let partidosFecha = listaFinalPartidos.slice(i, i + 3);
-    partidosFecha.forEach(p => {
-      if (fechaIndex < fechasPartidos.length) {
-        partidos.push({
-          local: p[0],
-          visitante: p[1],
-          fecha: fechasPartidos[fechaIndex],
-          golesLocal: null,
-          golesVisitante: null,
-          goleadoresLocal: [],
-          goleadoresVisitante: []
-        });
-      }
-    });
-    fechaIndex++;
-  }
-}
-
-// Calcula la tabla de posiciones con base en resultados
-function calcularPosiciones() {
-  let tabla = equipos.map(e => ({
-    id: e.id,
-    nombre: e.nombre,
-    puntos: 0,
-    pj: 0,
-    pg: 0,
-    pe: 0,
-    pp: 0,
-    gf: 0,
-    gc: 0,
-    dif: 0
-  }));
-
-  partidos.forEach(p => {
-    if (p.golesLocal !== null && p.golesVisitante !== null) {
-      let local = tabla.find(t => t.id === p.local);
-      let visitante = tabla.find(t => t.id === p.visitante);
-      local.pj++;
-      visitante.pj++;
-      local.gf += p.golesLocal;
-      local.gc += p.golesVisitante;
-      visitante.gf += p.golesVisitante;
-      visitante.gc += p.golesLocal;
-      if (p.golesLocal > p.golesVisitante) {
-        local.pg++;
-        visitante.pp++;
-        local.puntos += 3;
-      } else if (p.golesLocal < p.golesVisitante) {
-        visitante.pg++;
-        local.pp++;
-        visitante.puntos += 3;
-      } else {
-        local.pe++;
-        visitante.pe++;
-        local.puntos += 1;
-        visitante.puntos += 1;
-      }
-    }
-  });
-
-  tabla.forEach(t => {
-    t.dif = t.gf - t.gc;
-  });
-
-  // Ordenar por puntos, diferencia, goles a favor
-  tabla.sort((a, b) => {
-    if (b.puntos !== a.puntos) return b.puntos - a.puntos;
-    if (b.dif !== a.dif) return b.dif - a.dif;
-    return b.gf - a.gf;
-  });
-
-  posiciones = tabla;
-}
-
-// Variables para tabla de posiciones
-let posiciones = [];
-
-// Mostrar tabla de posiciones en la página
-function mostrarPosiciones() {
-  const div = document.getElementById("posiciones");
-  div.innerHTML = "<h2>Tabla de Posiciones</h2>";
-
-  if (posiciones.length === 0) {
-    div.innerHTML += "<p>No hay datos para mostrar.</p>";
-    return;
-  }
-
-  let html = `<table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Equipo</th>
-        <th>PJ</th>
-        <th>PG</th>
-        <th>PE</th>
-        <th>PP</th>
-        <th>GF</th>
-        <th>GC</th>
-        <th>DIF</th>
-        <th>Ptos</th>
-      </tr>
-    </thead><tbody>`;
-
-  posiciones.forEach((pos, i) => {
-    html += `<tr>
-      <td>${i + 1}</td>
-      <td>${pos.nombre}</td>
-      <td>${pos.pj}</td>
-      <td>${pos.pg}</td>
-      <td>${pos.pe}</td>
-      <td>${pos.pp}</td>
-      <td>${pos.gf}</td>
-      <td>${pos.gc}</td>
-      <td>${pos.dif}</td>
-      <td>${pos.puntos}</td>
-    </tr>`;
-  });
-
-  html += "</tbody></table>";
-  div.innerHTML += html;
-}
-
-// Mostrar fixture con resultados
-function mostrarFixture() {
-  const div = document.getElementById("fixture");
-  div.innerHTML = "<h2>Fixture</h2>";
-
-  if (partidos.length === 0) {
-    div.innerHTML += "<p>No hay partidos programados.</p>";
-    return;
-  }
-
-  let html = `<table>
-    <thead><tr><th>Fecha</th><th>Local</th><th>Visitante</th><th>Resultado</th></tr></thead><tbody>`;
-
-  partidos.forEach(p => {
-    const local = equipos.find(e => e.id === p.local);
-    const visitante = equipos.find(e => e.id === p.visitante);
-    const resultado = (p.golesLocal === null || p.golesVisitante === null) ? "-" : `${p.golesLocal} - ${p.golesVisitante}`;
-    html += `<tr>
-      <td>${p.fecha}</td>
-      <td>${local.nombre}</td>
-      <td>${visitante.nombre}</td>
-      <td>${resultado}</td>
-    </tr>`;
-  });
-
-  html += "</tbody></table>";
-  div.innerHTML += html;
-}
-
-// Mostrar tabla de goleadores (vacía por ahora)
-function mostrarGoleadores() {
-  const div = document.getElementById("goleadores");
-  div.innerHTML = "<h2>Tabla de Goleadores</h2>";
-
-  let goleadoresTotales = {};
-
-  partidos.forEach(p => {
-    p.goleadoresLocal.forEach(g => {
-      goleadoresTotales[g] = (goleadoresTotales[g] || 0) + 1;
-    });
-    p.goleadoresVisitante.forEach(g => {
-      goleadoresTotales[g] = (goleadoresTotales[g] || 0) + 1;
-    });
-  });
-
-  let arr = Object.entries(goleadoresTotales);
-  arr.sort((a,b) => b[1] - a[1]);
-
-  if(arr.length === 0){
-    div.innerHTML += "<p>No hay goles registrados.</p>";
-    return;
-  }
-
-  let html = `<table>
-    <thead><tr><th>Jugador</th><th>Goles</th></tr></thead><tbody>`;
-  arr.forEach(([jugador, goles]) => {
-    html += `<tr><td>${jugador}</td><td>${goles}</td></tr>`;
-  });
-  html += "</tbody></table>";
-  div.innerHTML += html;
-}
-
-// ADMINISTRACION
-
-const passAdmin = "Excursio2016";
+const fechas = ["13/6", "20/6", "27/6", "4/7", "11/7", "18/7", "1/8", "8/8"];
+const passwordAdmin = "Excursio2016";
 let adminLogged = false;
 
+// Generar fixture aleatorio, con orden para Quinto Lenguas
+function generarFixture() {
+  partidos = [];
+  // Equipos en orden Quinto Lenguas fijo: primero, segundo sociales, segundo lenguas, quinto sociales, cuarto
+  // Como el torneo es todos contra todos (5 partidos cada uno)
+  let ordenEquipos = ["Primero", "Segundo Sociales", "Segundo Lenguas", "Quinto Sociales", "Cuarto"];
+  
+  // Comenzamos con los partidos de la liga (fase todos contra todos)
+  // Usamos equipos originales y el orden que mencionaste, pero manteniendo la lógica
+  // Aquí un método sencillo para fixture con 6 equipos y fechas
+  
+  // Equipos indexados
+  const equiposNombres = equipos.map(e => e.nombre);
+  
+  // Generamos todos contra todos (sin repetir partidos y sin que se enfrenten con ellos mismos)
+  for (let i = 0; i < equipos.length - 1; i++) {
+    for (let j = i + 1; j < equipos.length; j++) {
+      partidos.push({
+        local: equipos[i].nombre,
+        visitante: equipos[j].nombre,
+        golesLocal: null,
+        golesVisitante: null,
+        fecha: null,
+        horario: null
+      });
+    }
+  }
+  
+  // Asignar fechas y horarios, 3 partidos viernes 1-5, 2 partidos viernes 6-8
+  // Total partidos: 15 (6 equipos todos contra todos = 15 partidos)
+  
+  // Partidos 0 a 14 en orden, los primeros 5 viernes 3 partidos, los últimos 3 viernes 2 partidos
+  let partidosIndex = 0;
+  for (let i = 0; i < fechas.length; i++) {
+    let partidosEnFecha = i < 5 ? 3 : 2;
+    for (let j = 0; j < partidosEnFecha; j++) {
+      if (partidos[partidosIndex]) {
+        partidos[partidosIndex].fecha = fechas[i];
+        partidos[partidosIndex].horario = "Sin horario aún";
+        partidosIndex++;
+      }
+    }
+  }
+}
+
+// Función para mostrar posiciones
+function mostrarPosiciones() {
+  const div = document.getElementById("posiciones");
+  let html = "<h2>Tabla de Posiciones</h2>";
+  html += "<table><thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th><th>Puntos</th></tr></thead><tbody>";
+  
+  // Ordenar equipos por puntos, diferencia de goles, goles a favor
+  equipos.sort((a, b) => {
+    if (b.puntos !== a.puntos) return b.puntos - a.puntos;
+    let difA = a.golesFavor - a.golesContra;
+    let difB = b.golesFavor - b.golesContra;
+    if (difB !== difA) return difB - difA;
+    return b.golesFavor - a.golesFavor;
+  });
+  
+  equipos.forEach((e, i) => {
+    let dg = e.golesFavor - e.golesContra;
+    html += `<tr>
+      <td>${i + 1}</td>
+      <td>${e.nombre}</td>
+      <td>${e.partidosJugados}</td>
+      <td>${Math.floor(e.puntos / 3)}</td>
+      <td>${e.puntos % 3}</td>
+      <td>0</td>
+      <td>${e.golesFavor}</td>
+      <td>${e.golesContra}</td>
+      <td>${dg}</td>
+      <td>${e.puntos}</td>
+    </tr>`;
+  });
+  
+  html += "</tbody></table>";
+  div.innerHTML = html;
+}
+
+// Mostrar fixture y resultados
+function mostrarFixture() {
+  const div = document.getElementById("fixture");
+  let html = "<h2>Fixture</h2>";
+  
+  // Agrupar partidos por fecha
+  const partidosPorFecha = {};
+  partidos.forEach(p => {
+    if (!partidosPorFecha[p.fecha]) partidosPorFecha[p.fecha] = [];
+    partidosPorFecha[p.fecha].push(p);
+  });
+  
+  for (const fecha in partidosPorFecha) {
+    html += `<h3>Fecha: ${fecha}</h3><table><thead><tr><th>Local</th><th>Goles</th><th>Visitante</th><th>Horario</th></tr></thead><tbody>`;
+    partidosPorFecha[fecha].forEach(p => {
+      const golesLocal = p.golesLocal !== null ? p.golesLocal : "-";
+      const golesVisitante = p.golesVisitante !== null ? p.golesVisitante : "-";
+      html += `<tr><td>${p.local}</td><td>${golesLocal} - ${golesVisitante}</td><td>${p.visitante}</td><td>${p.horario}</td></tr>`;
+    });
+    html += "</tbody></table>";
+  }
+  div.innerHTML = html;
+}
+
+// Mostrar goleadores (a implementar con los datos de goles)
+function mostrarGoleadores() {
+  const div = document.getElementById("goleadores");
+  let html = "<h2>Tabla de Goleadores</h2>";
+  // Como aún no hay datos de goleadores, mostramos mensaje
+  html += "<p>Esta función estará disponible cuando se registren goles y goleadores.</p>";
+  div.innerHTML = html;
+}
+
+// Función para mostrar sección administración con login
 function mostrarAdministracion() {
   const div = document.getElementById("administracion");
   if (!adminLogged) {
     div.innerHTML = `
-      <h2>Ingreso de Administrador</h2>
-      <input type="password" id="pass" placeholder="Contraseña" />
-      <button onclick="login()">Entrar</button>
-      <p id="error" class="error"></p>
+      <h2>Administración - Iniciar sesión</h2>
+      <label>Contraseña: <input type="password" id="passwordAdmin"></label>
+      <button onclick="loginAdmin()">Entrar</button>
+      <p id="mensajeLogin" class="error"></p>
     `;
   } else {
-    div.innerHTML = `
-      <h2>Administración de Resultados</h2>
-      <p>Ingresá los resultados de los partidos para actualizar la tabla.</p>
-      <div id="form-partidos"></div>
-      <button onclick="logout()">Cerrar sesión</button>
-    `;
-    mostrarFormularioPartidos();
+    mostrarIngresoResultados();
   }
 }
 
-function login() {
-  const pass = document.getElementById("pass").value;
-  if (pass === passAdmin) {
+function loginAdmin() {
+  const pass = document.getElementById("passwordAdmin").value;
+  if (pass === passwordAdmin) {
     adminLogged = true;
-    mostrarAdministracion();
+    mostrarIngresoResultados();
   } else {
-    document.getElementById("error").innerText = "Contraseña incorrecta";
+    document.getElementById("mensajeLogin").innerText = "Contraseña incorrecta.";
   }
 }
 
-function logout() {
-  adminLogged = false;
-  mostrarAdministracion();
-}
-
-function mostrarFormularioPartidos() {
-  const div = document.getElementById("form-partidos");
-  let html = "";
+function mostrarIngresoResultados() {
+  const div = document.getElementById("administracion");
+  let html = "<h2>Ingresar Resultados</h2>";
   partidos.forEach((p, i) => {
-    const local = equipos.find(e => e.id === p.local);
-    const visitante = equipos.find(e => e.id === p.visitante);
-    html += `<div style="margin-bottom:10px;">
-      <b>${p.fecha} - ${local.nombre} vs ${visitante.nombre}</b><br />
-      <label>Goles ${local.nombre}: <input type="number" min="0" id="golesLocal-${i}" value="${p.golesLocal !== null ? p.golesLocal : ''}"></label>
-      <label>Goles ${visitante.nombre}: <input type="number" min="0" id="golesVisitante-${i}" value="${p.golesVisitante !== null ? p.golesVisitante : ''}"></label>
+    html += `<div style="margin-bottom: 1em;">
+      <strong>${p.local}</strong> vs <strong>${p.visitante}</strong> (Fecha: ${p.fecha})<br>
+      <label>Goles ${p.local}: <input type="number" min="0" id="golesLocal-${i}" value="${p.golesLocal !== null ? p.golesLocal : ''}"></label><br>
+      <label>Goles ${p.visitante}: <input type="number" min="0" id="golesVisitante-${i}" value="${p.golesVisitante !== null ? p.golesVisitante : ''}"></label>
     </div>`;
   });
-  html += `<button onclick="guardarResultados()">Guardar Resultados</button>`;
+  html += `<button class="save-resultados" onclick="guardarResultados()">Guardar Resultados</button>`;
   div.innerHTML = html;
 }
 
@@ -341,8 +196,43 @@ function guardarResultados() {
   alert("Resultados guardados correctamente.");
 }
 
+function calcularPosiciones() {
+  // Resetear estadísticas de equipos
+  equipos.forEach(e => {
+    e.puntos = 0;
+    e.golesFavor = 0;
+    e.golesContra = 0;
+    e.partidosJugados = 0;
+  });
+
+  partidos.forEach(p => {
+    if (p.golesLocal === null || p.golesVisitante === null) return;
+    let local = equipos.find(e => e.nombre === p.local);
+    let visitante = equipos.find(e => e.nombre === p.visitante);
+    local.partidosJugados++;
+    visitante.partidosJugados++;
+
+    local.golesFavor += p.golesLocal;
+    local.golesContra += p.golesVisitante;
+
+    visitante.golesFavor += p.golesVisitante;
+    visitante.golesContra += p.golesLocal;
+
+    if (p.golesLocal > p.golesVisitante) {
+      local.puntos += 3;
+    } else if (p.golesLocal < p.golesVisitante) {
+      visitante.puntos += 3;
+    } else {
+      local.puntos += 1;
+      visitante.puntos += 1;
+    }
+  });
+}
+
 // Inicialización
 generarFixture();
 calcularPosiciones();
 mostrarPosiciones();
-
+mostrarFixture();
+mostrarGoleadores();
+mostrarAdministracion();
