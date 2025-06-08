@@ -1,115 +1,88 @@
-:root {
-  --verde: #2e8b57;
-  --azul: #1e90ff;
-  --blanco: #ffffff;
-  --gris: #f0f0f0;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 body {
-  font-family: "Segoe UI", sans-serif;
-  background-color: var(--gris);
-  color: #222;
-  line-height: 1.6;
-  padding: 10px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  background: linear-gradient(to bottom, #e8f5e9, #e3f2fd);
+  color: #333;
 }
 
 header {
-  background: var(--verde);
-  color: var(--blanco);
-  padding: 20px;
+  background-color: #2e7d32;
+  color: white;
+  padding: 1rem;
   text-align: center;
-  border-radius: 10px;
 }
 
-header h1 {
-  margin-bottom: 10px;
+nav {
+  background-color: #1b5e20;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.5rem;
 }
 
 nav button {
-  background: var(--azul);
-  color: var(--blanco);
+  background-color: #81c784;
   border: none;
-  padding: 10px 15px;
-  margin: 5px;
-  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  transition: background 0.3s ease;
+  color: #003300;
 }
 
 nav button:hover {
-  background: #005bb5;
+  background-color: #66bb6a;
 }
 
-main {
-  margin-top: 20px;
-}
-
-.seccion {
-  margin-bottom: 30px;
-}
-
-.oculto {
+section {
   display: none;
+  padding: 1rem;
 }
 
-h2 {
-  margin-bottom: 10px;
-  color: var(--verde);
+section.active {
+  display: block;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  background: var(--blanco);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  margin: 1rem 0;
 }
 
 th, td {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
+  border: 1px solid #bbb;
+  padding: 0.5rem;
   text-align: center;
 }
 
 th {
-  background: var(--verde);
-  color: var(--blanco);
+  background-color: #c8e6c9;
 }
 
-tr:last-child td {
-  border-bottom: none;
+input[type="text"], input[type="number"], select {
+  padding: 0.4rem;
+  margin: 0.3rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+button.save-btn {
+  background-color: #1565c0;
+  color: white;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button.save-btn:hover {
+  background-color: #0d47a1;
 }
 
 footer {
   text-align: center;
-  margin-top: 40px;
-  color: #555;
-  font-size: 14px;
-}
-
-#fase-final {
-  padding: 10px;
-  background: var(--blanco);
-  border-radius: 10px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
-}
-
-@media (max-width: 600px) {
-  table, thead, tbody, th, td, tr {
-    font-size: 14px;
-  }
-
-  nav button {
-    padding: 8px 10px;
-    margin: 3px;
-    font-size: 14px;
-  }
+  padding: 1rem;
+  background-color: #c5e1a5;
+  margin-top: 2rem;
+  font-size: 0.9rem;
 }
