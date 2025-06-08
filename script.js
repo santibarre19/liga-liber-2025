@@ -1,4 +1,5 @@
 // script.js
+console.log("Script cargado correctamente");
 
 document.addEventListener("DOMContentLoaded", () => {
   const adminPassword = "LIGALIBER2025";
