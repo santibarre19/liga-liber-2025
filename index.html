@@ -2,53 +2,43 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>LIGA LIBER 2025</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="login-container" class="login-container">
-    <h2>Administrador</h2>
-    <input type="password" id="admin-password" placeholder="Contraseña" />
-    <button onclick="login()">Entrar</button>
-  </div>
 
-  <div id="main-content" class="hidden">
-    <header>
-      <h1>LIGA LIBER 2025</h1>
-      <nav>
-        <button onclick="showSection('posiciones')">Posiciones</button>
-        <button onclick="showSection('fixture')">Fixture</button>
-        <button onclick="showSection('goleadores')">Goleadores</button>
-        <button onclick="showSection('equipos')">Equipos</button>
-      </nav>
-    </header>
+<header>
+  <h1>LIGA LIBER 2025</h1>
+</header>
 
-    <main>
-      <section id="posiciones" class="section visible">
-        <h2>Tabla de Posiciones</h2>
-        <div id="tabla-posiciones"></div>
-        <h3>Playoffs y Fase Final</h3>
-        <div id="cuadro-fase-final"></div>
-      </section>
+<nav>
+  <button onclick="mostrarSeccion('posiciones')">Posiciones</button>
+  <button onclick="mostrarSeccion('fixture')">Fixture</button>
+  <button onclick="mostrarSeccion('goleadores')">Goleadores</button>
+  <button onclick="mostrarSeccion('administracion')">Administración</button>
+</nav>
 
-      <section id="fixture" class="section hidden">
-        <h2>Fixture</h2>
-        <div id="fixture-container"></div>
-      </section>
+<main>
+  <section id="posiciones" class="active"></section>
+  <section id="fixture"></section>
+  <section id="goleadores"></section>
+  <section id="administracion"></section>
+</main>
 
-      <section id="goleadores" class="section hidden">
-        <h2>Goleadores</h2>
-        <div id="tabla-goleadores"></div>
-      </section>
+<script src="script.js"></script>
+<script>
+  function mostrarSeccion(id) {
+    document.querySelectorAll('main section').forEach(sec => {
+      sec.classList.remove('active');
+    });
+    document.getElementById(id).classList.add('active');
+  }
+  
+  // Inicializamos la página mostrando posiciones y administración sin login
+  mostrarSeccion('posiciones');
+  mostrarAdministracion();
+</script>
 
-      <section id="equipos" class="section hidden">
-        <h2>Jugadores por Equipo</h2>
-        <div id="equipos-container"></div>
-      </section>
-    </main>
-  </div>
-
-  <script src="script.js"></script>
 </body>
 </html>
