@@ -1,3 +1,31 @@
+const PASSWORD = "Excursio2016";
+let isAdmin = false;
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (!localStorage.getItem("isAdmin")) {
+    const pass = prompt("Contraseña para editar:");
+    if (pass === PASSWORD) {
+      isAdmin = true;
+      localStorage.setItem("isAdmin", "true");
+    } else {
+      isAdmin = false;
+    }
+  } else {
+    isAdmin = true;
+  }
+
+  mostrarSeccion("fixture");
+  generarEquipos();
+  generarFixture();
+  actualizarTabla();
+  actualizarGoleadores();
+});
+
+function mostrarSeccion(id) {
+  document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
 const equiposIniciales = [
   "Primero",
   "Segundo Lenguas",
@@ -7,207 +35,215 @@ const equiposIniciales = [
   "Quinto Sociales"
 ];
 
-let equipos = JSON.parse(localStorage.getItem("equipos")) || equiposIniciales;
-let resultados = JSON.parse(localStorage.getItem("resultados")) || {};
-let goleadores = JSON.parse(localStorage.getItem("goleadores")) || {};
-let fixture = JSON.parse(localStorage.getItem("fixture")) || generarFixture();
+function generarEquipos() {
+  if (!localStorage.getItem("equipos")) {
+    const data = equiposIniciales.map(nombre => ({ nombre, escudo: "" }));
+    localStorage.setItem("equipos", JSON.stringify(data));
+  }
+}
 
-function guardar() {
+function obtenerEquipos() {
+  return JSON.parse(localStorage.getItem("equipos"));
+}
+
+function guardarEquipos(equipos) {
   localStorage.setItem("equipos", JSON.stringify(equipos));
-  localStorage.setItem("resultados", JSON.stringify(resultados));
-  localStorage.setItem("goleadores", JSON.stringify(goleadores));
-  localStorage.setItem("fixture", JSON.stringify(fixture));
 }
 
 function generarFixture() {
-  let fechas = [[], [], [], [], []];
-  let rivales = [...equipos];
-  let quinto = "Quinto Lenguas";
-  let ordenQuinto = ["Primero", "Segundo Sociales", "Segundo Lenguas", "Quinto Sociales", "Cuarto"];
+  const equipos = obtenerEquipos();
+  let partidos = JSON.parse(localStorage.getItem("partidos"));
 
-  ordenQuinto.forEach((rival, i) => {
-    fechas[i].push([quinto, rival]);
-    rivales = rivales.filter(e => e !== rival && e !== quinto);
-  });
+  if (!partidos) {
+    const fechas = [ "13/6", "20/6", "27/6", "4/7", "11/7" ];
+    const fixtureQuintoL = ["Primero", "Segundo Sociales", "Segundo Lenguas", "Quinto Sociales", "Cuarto"];
+    let usados = { "Quinto Lenguas": new Set() };
+    partidos = [];
 
-  let partidosRestantes = [];
-  for (let i = 0; i < equipos.length; i++) {
-    for (let j = i + 1; j < equipos.length; j++) {
-      let a = equipos[i], b = equipos[j];
-      if (!ordenQuinto.includes(a) || a !== "Quinto Lenguas") {
-        if (!ordenQuinto.includes(b) || b !== "Quinto Lenguas") {
-          partidosRestantes.push([a, b]);
+    let restantes = equipos.filter(eq => eq.nombre !== "Quinto Lenguas");
+    let usadoEnFecha = new Set();
+
+    for (let i = 0; i < fechas.length; i++) {
+      let fecha = fechas[i];
+      let equiposEnFecha = new Set();
+      let partidosFecha = [];
+
+      // Aseguramos que Quinto Lenguas juegue su partido fijo
+      const rival = fixtureQuintoL[i];
+      partidosFecha.push({ fecha, local: "Quinto Lenguas", visitante: rival, golesLocal: null, golesVisitante: null, goleadoresLocal: "", goleadoresVisitante: "" });
+      equiposEnFecha.add("Quinto Lenguas");
+      equiposEnFecha.add(rival);
+
+      // Buscamos el resto de partidos
+      for (let a = 0; a < equipos.length; a++) {
+        for (let b = a + 1; b < equipos.length; b++) {
+          const e1 = equipos[a].nombre;
+          const e2 = equipos[b].nombre;
+
+          if (
+            !equiposEnFecha.has(e1) &&
+            !equiposEnFecha.has(e2) &&
+            !fixtureQuintoL.includes(e1) && !fixtureQuintoL.includes(e2) &&
+            !partidos.some(p => (p.local === e1 && p.visitante === e2) || (p.local === e2 && p.visitante === e1))
+          ) {
+            partidosFecha.push({ fecha, local: e1, visitante: e2, golesLocal: null, golesVisitante: null, goleadoresLocal: "", goleadoresVisitante: "" });
+            equiposEnFecha.add(e1);
+            equiposEnFecha.add(e2);
+            break;
+          }
         }
+        if (equiposEnFecha.size === 6) break;
       }
+
+      partidos.push(...partidosFecha);
     }
+
+    localStorage.setItem("partidos", JSON.stringify(partidos));
   }
 
-  while (fechas.some(f => f.length < 3) && partidosRestantes.length > 0) {
-    for (let f = 0; f < 5; f++) {
-      if (fechas[f].length >= 3) continue;
-      for (let i = 0; i < partidosRestantes.length; i++) {
-        let [a, b] = partidosRestantes[i];
-        let ya = fechas[f].flat();
-        if (!ya.includes(a) && !ya.includes(b)) {
-          fechas[f].push([a, b]);
-          partidosRestantes.splice(i, 1);
-          break;
-        }
+  renderFixture(partidos);
+}
+
+function renderFixture(partidos) {
+  const cont = document.getElementById("fixtureContent");
+  cont.innerHTML = "";
+
+  const fechasUnicas = [...new Set(partidos.map(p => p.fecha))];
+
+  fechasUnicas.forEach(fecha => {
+    const fechaDiv = document.createElement("div");
+    fechaDiv.innerHTML = `<h3>Fecha ${fecha}</h3>`;
+    const tabla = document.createElement("table");
+    const encabezado = `<tr><th>Local</th><th>Goles</th><th>Visitante</th><th>Goles</th>${isAdmin ? "<th>Goleadores</th><th>Acción</th>" : ""}</tr>`;
+    tabla.innerHTML = encabezado;
+
+    partidos.filter(p => p.fecha === fecha).forEach((p, index) => {
+      const fila = document.createElement("tr");
+
+      const golesL = p.golesLocal ?? "";
+      const golesV = p.golesVisitante ?? "";
+
+      if (isAdmin) {
+        fila.innerHTML = `
+          <td>${p.local}</td>
+          <td><input type="number" value="${golesL}" id="golL-${fecha}-${index}" /></td>
+          <td>${p.visitante}</td>
+          <td><input type="number" value="${golesV}" id="golV-${fecha}-${index}" /></td>
+          <td>
+            <input type="text" placeholder="Goleadores Local" value="${p.goleadoresLocal}" id="gl-${fecha}-${index}" />
+            <input type="text" placeholder="Goleadores Visitante" value="${p.goleadoresVisitante}" id="gv-${fecha}-${index}" />
+          </td>
+          <td><button class="save-btn" onclick="guardarResultado('${fecha}', ${index})">Guardar</button></td>
+        `;
+      } else {
+        fila.innerHTML = `
+          <td>${p.local}</td><td>${golesL}</td><td>${p.visitante}</td><td>${golesV}</td>
+        `;
       }
-    }
-  }
 
-  return fechas;
-}
-
-function mostrarSeccion(id) {
-  document.querySelectorAll(".seccion").forEach(sec => sec.classList.add("oculto"));
-  document.getElementById(id).classList.remove("oculto");
-}
-
-function actualizarTodo() {
-  mostrarFixture();
-  mostrarResultados();
-  mostrarPosiciones();
-  mostrarGoleadores();
-  mostrarFaseFinal();
-}
-
-function mostrarFixture() {
-  const contenedor = document.getElementById("tabla-fixture");
-  contenedor.innerHTML = "";
-  fixture.forEach((fecha, i) => {
-    fecha.forEach(partido => {
-      const fila = document.createElement("tr");
-      fila.innerHTML = `<td>Fecha ${i + 1}</td><td>${partido[0]}</td><td>${partido[1]}</td>`;
-      contenedor.appendChild(fila);
+      tabla.appendChild(fila);
     });
+
+    fechaDiv.appendChild(tabla);
+    cont.appendChild(fechaDiv);
   });
 }
 
-function mostrarResultados() {
-  const contenedor = document.getElementById("tabla-resultados");
-  contenedor.innerHTML = "";
-  fixture.forEach((fecha, fIndex) => {
-    fecha.forEach((partido, pIndex) => {
-      const key = `f${fIndex}_p${pIndex}`;
-      const res = resultados[key] || { g1: "", g2: "", goles: [] };
+function guardarResultado(fecha, index) {
+  let partidos = JSON.parse(localStorage.getItem("partidos"));
+  const partidosFecha = partidos.filter(p => p.fecha === fecha);
+  const p = partidosFecha[index];
 
-      const fila = document.createElement("tr");
-      fila.innerHTML = `
-        <td>Fecha ${fIndex + 1}</td>
-        <td>${partido[0]}</td>
-        <td><input type="number" value="${res.g1}" onchange="guardarResultado('${key}', 0, this.value)" /></td>
-        <td>${partido[1]}</td>
-        <td><input type="number" value="${res.g2}" onchange="guardarResultado('${key}', 1, this.value)" /></td>
-        <td><input type="text" value="${(res.goles || []).join(', ')}" onchange="guardarGoleadores('${key}', this.value)" placeholder="goleadores separados por coma" /></td>
-      `;
-      contenedor.appendChild(fila);
-    });
-  });
+  const golesL = parseInt(document.getElementById(`golL-${fecha}-${index}`).value);
+  const golesV = parseInt(document.getElementById(`golV-${fecha}-${index}`).value);
+  const goleadoresL = document.getElementById(`gl-${fecha}-${index}`).value;
+  const goleadoresV = document.getElementById(`gv-${fecha}-${index}`).value;
+
+  const i = partidos.findIndex(x => x.fecha === fecha && x.local === p.local && x.visitante === p.visitante);
+  partidos[i].golesLocal = golesL;
+  partidos[i].golesVisitante = golesV;
+  partidos[i].goleadoresLocal = goleadoresL;
+  partidos[i].goleadoresVisitante = goleadoresV;
+
+  localStorage.setItem("partidos", JSON.stringify(partidos));
+
+  actualizarTabla();
+  actualizarGoleadores();
+  generarFixture();
 }
 
-function guardarResultado(key, equipo, valor) {
-  resultados[key] = resultados[key] || { g1: "", g2: "", goles: [] };
-  if (equipo === 0) resultados[key].g1 = parseInt(valor);
-  else resultados[key].g2 = parseInt(valor);
-  guardar();
-  actualizarTodo();
-}
+function actualizarTabla() {
+  const equipos = obtenerEquipos().map(eq => ({ ...eq, puntos: 0, gf: 0, gc: 0, pj: 0 }));
+  const partidos = JSON.parse(localStorage.getItem("partidos"));
 
-function guardarGoleadores(key, texto) {
-  let nombres = texto.split(",").map(n => n.trim()).filter(n => n !== "");
-  resultados[key] = resultados[key] || { g1: "", g2: "", goles: [] };
-  resultados[key].goles = nombres;
+  partidos.forEach(p => {
+    if (p.golesLocal !== null && p.golesVisitante !== null) {
+      const eqL = equipos.find(e => e.nombre === p.local);
+      const eqV = equipos.find(e => e.nombre === p.visitante);
 
-  goleadores = {};
-  Object.values(resultados).forEach(r => {
-    (r.goles || []).forEach(nombre => {
-      goleadores[nombre] = (goleadores[nombre] || 0) + 1;
-    });
-  });
+      eqL.gf += p.golesLocal;
+      eqL.gc += p.golesVisitante;
+      eqL.pj += 1;
 
-  guardar();
-  actualizarTodo();
-}
+      eqV.gf += p.golesVisitante;
+      eqV.gc += p.golesLocal;
+      eqV.pj += 1;
 
-function mostrarPosiciones() {
-  const puntos = {};
-  const jugados = {};
-  const gf = {};
-  const gc = {};
-
-  equipos.forEach(e => {
-    puntos[e] = 0;
-    jugados[e] = 0;
-    gf[e] = 0;
-    gc[e] = 0;
-  });
-
-  fixture.forEach((fecha, fIndex) => {
-    fecha.forEach((partido, pIndex) => {
-      const key = `f${fIndex}_p${pIndex}`;
-      const res = resultados[key];
-      if (!res || res.g1 === "" || res.g2 === "") return;
-
-      let [a, b] = partido;
-      let g1 = parseInt(res.g1), g2 = parseInt(res.g2);
-      jugados[a]++;
-      jugados[b]++;
-      gf[a] += g1; gc[a] += g2;
-      gf[b] += g2; gc[b] += g1;
-      if (g1 > g2) puntos[a] += 3;
-      else if (g2 > g1) puntos[b] += 3;
+      if (p.golesLocal > p.golesVisitante) eqL.puntos += 3;
+      else if (p.golesLocal < p.golesVisitante) eqV.puntos += 3;
       else {
-        puntos[a] += 1;
-        puntos[b] += 1;
+        eqL.puntos += 1;
+        eqV.puntos += 1;
       }
-    });
+    }
   });
 
-  const tabla = equipos.map(e => ({
-    equipo: e,
-    puntos: puntos[e],
-    pj: jugados[e],
-    gf: gf[e],
-    gc: gc[e],
-    dg: gf[e] - gc[e]
-  }));
+  equipos.sort((a, b) => b.puntos - a.puntos || (b.gf - b.gc) - (a.gf - a.gc));
 
-  tabla.sort((a, b) => b.puntos - a.puntos || b.dg - a.dg || b.gf - a.gf);
+  const tabla = document.getElementById("tablaPosiciones");
+  tabla.innerHTML = `
+    <tr><th>Equipo</th><th>PJ</th><th>GF</th><th>GC</th><th>DIF</th><th>Puntos</th></tr>
+  `;
 
-  const contenedor = document.getElementById("tabla-posiciones");
-  contenedor.innerHTML = "";
-  tabla.forEach(t => {
-    const fila = document.createElement("tr");
-    fila.innerHTML = `
-      <td>${t.equipo}</td>
-      <td>${t.puntos}</td>
-      <td>${t.pj}</td>
-      <td>${t.gf}</td>
-      <td>${t.gc}</td>
-      <td>${t.dg}</td>
+  equipos.forEach(eq => {
+    tabla.innerHTML += `
+      <tr>
+        <td>${eq.nombre}</td>
+        <td>${eq.pj}</td>
+        <td>${eq.gf}</td>
+        <td>${eq.gc}</td>
+        <td>${eq.gf - eq.gc}</td>
+        <td>${eq.puntos}</td>
+      </tr>
     `;
-    contenedor.appendChild(fila);
   });
 }
 
-function mostrarGoleadores() {
-  const lista = Object.entries(goleadores);
-  lista.sort((a, b) => b[1] - a[1]);
+function actualizarGoleadores() {
+  const partidos = JSON.parse(localStorage.getItem("partidos"));
+  const goles = {};
 
-  const contenedor = document.getElementById("tabla-goleadores");
-  contenedor.innerHTML = "";
-  lista.forEach(([nombre, goles]) => {
-    const fila = document.createElement("tr");
-    fila.innerHTML = `<td>${nombre}</td><td>${goles}</td>`;
-    contenedor.appendChild(fila);
+  partidos.forEach(p => {
+    if (p.goleadoresLocal) {
+      p.goleadoresLocal.split(",").map(n => n.trim()).forEach(n => {
+        if (!n) return;
+        goles[n] = (goles[n] || 0) + 1;
+      });
+    }
+    if (p.goleadoresVisitante) {
+      p.goleadoresVisitante.split(",").map(n => n.trim()).forEach(n => {
+        if (!n) return;
+        goles[n] = (goles[n] || 0) + 1;
+      });
+    }
+  });
+
+  const goleadores = Object.entries(goles).sort((a, b) => b[1] - a[1]);
+
+  const cont = document.getElementById("tablaGoleadores");
+  cont.innerHTML = `<tr><th>Jugador</th><th>Goles</th></tr>`;
+
+  goleadores.forEach(([nombre, goles]) => {
+    cont.innerHTML += `<tr><td>${nombre}</td><td>${goles}</td></tr>`;
   });
 }
-
-function mostrarFaseFinal() {
-  const contenedor = document.getElementById("fase-final");
-  contenedor.innerHTML = `<p>🧩 ¡La fase final se genera automáticamente cuando termine la fase de grupos!</p>`;
-}
-
-actualizarTodo();
