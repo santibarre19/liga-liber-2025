@@ -7,57 +7,47 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app">
-    <header>
-      <h1>LIGA LIBER 2025</h1>
-      <nav>
-        <button onclick="showSection('posiciones')">Posiciones</button>
-        <button onclick="showSection('fixture')">Fixture</button>
-        <button onclick="showSection('goleadores')">Goleadores</button>
-        <button onclick="showSection('equipos')">Equipos</button>
-        <button onclick="showSection('planteles')">Planteles</button>
-      </nav>
-    </header>
+  <header>
+    <h1>LIGA LIBER 2025</h1>
+    <nav>
+      <button onclick="mostrarSeccion('posiciones')">Posiciones</button>
+      <button onclick="mostrarSeccion('fixture')">Fixture</button>
+      <button onclick="mostrarSeccion('goleadores')">Goleadores</button>
+      <button onclick="mostrarSeccion('equipos')">Equipos</button>
+    </nav>
+  </header>
 
-    <main>
-      <section id="loginSection">
-        <h2>Modo administrador</h2>
-        <input type="password" id="adminPass" placeholder="Contraseña" />
-        <button onclick="loginAdmin()">Entrar</button>
-      </section>
+  <main>
+    <section id="admin" class="seccion">
+      <h2>Modo administrador</h2>
+      <input type="password" id="adminPassword" placeholder="Contraseña" />
+      <button onclick="activarModoAdmin()">Entrar</button>
+    </section>
 
-      <section id="posicionesSection" class="section hidden">
-        <h2>Tabla de Posiciones</h2>
-        <div id="tablaPosiciones"></div>
-        <h3>Playoffs</h3>
-        <div id="playoffBracket"></div>
-      </section>
+    <section id="posiciones" class="seccion" style="display: none">
+      <h2>Tabla de Posiciones</h2>
+      <table id="tablaPosiciones"></table>
+      <h3>Playoffs y Fase Final</h3>
+      <div id="faseFinal"></div>
+    </section>
 
-      <section id="fixtureSection" class="section hidden">
-        <h2>Fixture</h2>
-        <div id="fixtureTable"></div>
-        <div id="editFixtureForm" class="admin-only hidden"></div>
-      </section>
+    <section id="fixture" class="seccion" style="display: none">
+      <h2>Fixture</h2>
+      <div id="fixtureContainer"></div>
+    </section>
 
-      <section id="goleadoresSection" class="section hidden">
-        <h2>Tabla de Goleadores</h2>
-        <div id="tablaGoleadores"></div>
-      </section>
+    <section id="goleadores" class="seccion" style="display: none">
+      <h2>Tabla de Goleadores</h2>
+      <table id="tablaGoleadores"></table>
+    </section>
 
-      <section id="equiposSection" class="section hidden">
-        <h2>Equipos</h2>
-        <div id="equiposTable"></div>
-        <div id="editEquiposForm" class="admin-only hidden"></div>
-      </section>
-
-      <section id="plantelesSection" class="section hidden">
-        <h2>Planteles</h2>
-        <div id="plantelesTable"></div>
-        <div id="editPlantelesForm" class="admin-only hidden"></div>
-      </section>
-    </main>
-  </div>
+    <section id="equipos" class="seccion" style="display: none">
+      <h2>Jugadores y Equipos</h2>
+      <div id="equipoContainer"></div>
+    </section>
+  </main>
 
   <script src="script.js"></script>
 </body>
 </html>
+
