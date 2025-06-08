@@ -45,8 +45,10 @@ function generarFixture() {
   todosPartidos = shuffle(todosPartidos);
 
   // Asignar partidos a fechas evitando que un equipo juegue dos veces en la misma fecha
-  const maxPartidosPorFecha = [3, 3, 3, 3, 3, 2, 2, 2]; // según tus fechas
-  const partidosPorFecha = fechas.map(() => []); // arreglo de arrays por fecha
+const fechasLiga = fechas.slice(0, 5); // solo 5 fechas para la fase de liga
+const maxPartidosPorFecha = [3, 3, 3, 3, 3];
+const partidosPorFecha = fechasLiga.map(() => []);
+
 
   // Función auxiliar para saber si un equipo ya juega en una fecha
   function equipoJuegaEnFecha(fechaIdx, equipo) {
@@ -55,7 +57,7 @@ function generarFixture() {
 
   // Repartir partidos en fechas
   todosPartidos.forEach(partido => {
-    for (let fechaIdx = 0; fechaIdx < fechas.length; fechaIdx++) {
+    for (let fechaIdx = 0; fechaIdx < fechasLiga.length; fechaIdx++) {
       if (
         partidosPorFecha[fechaIdx].length < maxPartidosPorFecha[fechaIdx] &&
         !equipoJuegaEnFecha(fechaIdx, partido.local) &&
@@ -69,9 +71,9 @@ function generarFixture() {
 
   // Finalmente, armar el array partidos con fecha asignada
   partidos = [];
-  for (let i = 0; i < fechas.length; i++) {
-    partidosPorFecha[i].forEach(p => {
-      p.fecha = fechas[i];
+for (let i = 0; i < fechasLiga.length; i++) {
+  partidosPorFecha[i].forEach(p => {
+    p.fecha = fechasLiga[i];
       p.horario = "Sin horario aún";
       partidos.push(p);
     });
