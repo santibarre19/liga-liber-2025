@@ -1,105 +1,84 @@
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f4f4f4;
+  font-family: Arial, sans-serif;
+  background: #f2f9f2;
+  color: #034d02;
   margin: 0;
   padding: 0;
-  color: #333;
 }
-
 header {
-  background: #006699;
+  background: #006400;
   color: white;
-  padding: 1rem;
+  padding: 1em 0;
   text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
-
-header h1 {
-  margin: 0;
-  font-size: 1.8rem;
-}
-
 nav {
-  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  background: #009933;
+  padding: 0.5em 0;
 }
-
 nav button {
-  margin: 0.25rem;
-  padding: 0.5rem 1rem;
-  background: white;
-  color: #006699;
-  border: 2px solid #006699;
-  border-radius: 10px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-nav button:hover {
-  background: #006699;
+  background: transparent;
+  border: none;
   color: white;
+  font-weight: bold;
+  padding: 0.5em 1.2em;
+  margin: 0 0.5em;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
-
+nav button:hover {
+  background: #003300;
+  border-radius: 4px;
+}
 main {
-  padding: 1rem;
+  max-width: 900px;
+  margin: 2em auto;
+  background: white;
+  padding: 2em;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #b0d6a8;
 }
-
-.section {
+section {
   display: none;
 }
-
-.section.visible {
+section.active {
   display: block;
 }
-
-#tabla-posiciones, #fixture-container, #tabla-goleadores, #equipos-container {
-  margin-top: 1rem;
-  background: white;
-  padding: 1rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  overflow-x: auto;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 1em;
 }
-
 th, td {
-  padding: 0.5rem;
+  border: 1px solid #009933;
+  padding: 0.5em;
   text-align: center;
-  border-bottom: 1px solid #ccc;
 }
-
-tr:nth-child(even) {
-  background-color: #f2f2f2;
+th {
+  background: #009933;
+  color: white;
 }
-
-h2, h3 {
-  margin-top: 0;
-  color: #006699;
+.error {
+  color: red;
 }
-
-.login-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 100px;
+input[type="number"], input[type="password"] {
+  padding: 0.3em;
+  width: 50px;
+  text-align: center;
+  margin-left: 0.5em;
 }
-
-.login-container input, .login-container button {
-  margin: 0.5rem;
-  padding: 0.5rem;
-  font-size: 1rem;
+button.save-resultados {
+  background: #006400;
+  color: white;
+  border: none;
+  padding: 0.6em 1.2em;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 1em;
+  font-weight: bold;
 }
-
-.hidden {
-  display: none;
-}
-
-img {
-  max-width: 30px;
-  height: auto;
-  vertical-align: middle;
-  margin-right: 8px;
+button.save-resultados:hover {
+  background: #004d00;
 }
