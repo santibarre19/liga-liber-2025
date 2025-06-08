@@ -2,31 +2,60 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LIGA LIBER 2025</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="auth">
-    <h2>Ingresá la contraseña para administrar</h2>
-    <input type="password" id="password" placeholder="Contraseña" />
-    <button onclick="checkPassword()">Entrar</button>
-  </div>
-
-  <div id="mainContent" style="display:none;">
+  <div id="app">
     <header>
       <h1>LIGA LIBER 2025</h1>
+      <nav>
+        <button onclick="showSection('posiciones')">Posiciones</button>
+        <button onclick="showSection('fixture')">Fixture</button>
+        <button onclick="showSection('goleadores')">Goleadores</button>
+        <button onclick="showSection('equipos')">Equipos</button>
+        <button onclick="showSection('planteles')">Planteles</button>
+      </nav>
     </header>
 
-    <nav>
-      <button onclick="mostrarSeccion('fixture')">Fixture</button>
-      <button onclick="mostrarSeccion('posiciones')">Posiciones</button>
-      <button onclick="mostrarSeccion('goleadores')">Goleadores</button>
-    </nav>
+    <main>
+      <section id="loginSection">
+        <h2>Modo administrador</h2>
+        <input type="password" id="adminPass" placeholder="Contraseña" />
+        <button onclick="loginAdmin()">Entrar</button>
+      </section>
 
-    <section id="fixture" class="seccion visible"></section>
-    <section id="posiciones" class="seccion"></section>
-    <section id="goleadores" class="seccion"></section>
+      <section id="posicionesSection" class="section hidden">
+        <h2>Tabla de Posiciones</h2>
+        <div id="tablaPosiciones"></div>
+        <h3>Playoffs</h3>
+        <div id="playoffBracket"></div>
+      </section>
+
+      <section id="fixtureSection" class="section hidden">
+        <h2>Fixture</h2>
+        <div id="fixtureTable"></div>
+        <div id="editFixtureForm" class="admin-only hidden"></div>
+      </section>
+
+      <section id="goleadoresSection" class="section hidden">
+        <h2>Tabla de Goleadores</h2>
+        <div id="tablaGoleadores"></div>
+      </section>
+
+      <section id="equiposSection" class="section hidden">
+        <h2>Equipos</h2>
+        <div id="equiposTable"></div>
+        <div id="editEquiposForm" class="admin-only hidden"></div>
+      </section>
+
+      <section id="plantelesSection" class="section hidden">
+        <h2>Planteles</h2>
+        <div id="plantelesTable"></div>
+        <div id="editPlantelesForm" class="admin-only hidden"></div>
+      </section>
+    </main>
   </div>
 
   <script src="script.js"></script>
