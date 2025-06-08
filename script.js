@@ -14,24 +14,17 @@ const fechas = ["13/6", "20/6", "27/6", "4/7", "11/7", "18/7", "1/8", "8/8"];
 const passwordAdmin = "Excursio2016";
 let adminLogged = false;
 
-// Generar fixture aleatorio
 function generarFixture() {
   partidos = [];
-  // Como el torneo es todos contra todos (5 partidos cada uno y juegan una vez por fecha)
-  
-  // Comenzamos con los partidos de la liga (fase todos contra todos)
-  // Usamos equipos originales y el orden que mencionaste, pero manteniendo la lógica
-  // Aquí un método sencillo para fixture con 6 equipos y fechas
-  
-  // Equipos indexados
   const equiposNombres = equipos.map(e => e.nombre);
-  
-  // Generamos todos contra todos (sin repetir partidos, sin que se enfrenten con ellos mismos y jugando un partido por fecha)
-  for (let i = 0; i < equipos.length - 1; i++) {
-    for (let j = i + 1; j < equipos.length; j++) {
-      partidos.push({
-        local: equipos[i].nombre,
-        visitante: equipos[j].nombre,
+
+  // Generar todos contra todos (sin repetir partidos ni reversos)
+  let todosPartidos = [];
+  for (let i = 0; i < equiposNombres.length - 1; i++) {
+    for (let j = i + 1; j < equiposNombres.length; j++) {
+      todosPartidos.push({
+        local: equiposNombres[i],
+        visitante: equiposNombres[j],
         golesLocal: null,
         golesVisitante: null,
         fecha: null,
@@ -39,23 +32,52 @@ function generarFixture() {
       });
     }
   }
-  
-  // Asignar fechas y horarios, 3 partidos viernes 1-5, 2 partidos viernes 6-8
-  // Total partidos: 15 (6 equipos todos contra todos = 15 partidos)
-  
-  // Partidos 0 a 14 en orden, los primeros 5 viernes 3 partidos, los últimos 3 viernes 2 partidos
-  let partidosIndex = 0;
-  for (let i = 0; i < fechas.length; i++) {
-    let partidosEnFecha = i < 5 ? 3 : 2;
-    for (let j = 0; j < partidosEnFecha; j++) {
-      if (partidos[partidosIndex]) {
-        partidos[partidosIndex].fecha = fechas[i];
-        partidos[partidosIndex].horario = "Sin horario aún";
-        partidosIndex++;
+
+  // Función shuffle Fisher-Yates para mezclar los partidos
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  todosPartidos = shuffle(todosPartidos);
+
+  // Asignar partidos a fechas evitando que un equipo juegue dos veces en la misma fecha
+  const maxPartidosPorFecha = [3, 3, 3, 3, 3, 2, 2, 2]; // según tus fechas
+  const partidosPorFecha = fechas.map(() => []); // arreglo de arrays por fecha
+
+  // Función auxiliar para saber si un equipo ya juega en una fecha
+  function equipoJuegaEnFecha(fechaIdx, equipo) {
+    return partidosPorFecha[fechaIdx].some(p => p.local === equipo || p.visitante === equipo);
+  }
+
+  // Repartir partidos en fechas
+  todosPartidos.forEach(partido => {
+    for (let fechaIdx = 0; fechaIdx < fechas.length; fechaIdx++) {
+      if (
+        partidosPorFecha[fechaIdx].length < maxPartidosPorFecha[fechaIdx] &&
+        !equipoJuegaEnFecha(fechaIdx, partido.local) &&
+        !equipoJuegaEnFecha(fechaIdx, partido.visitante)
+      ) {
+        partidosPorFecha[fechaIdx].push(partido);
+        return; // partido asignado, salimos del for
       }
     }
+  });
+
+  // Finalmente, armar el array partidos con fecha asignada
+  partidos = [];
+  for (let i = 0; i < fechas.length; i++) {
+    partidosPorFecha[i].forEach(p => {
+      p.fecha = fechas[i];
+      p.horario = "Sin horario aún";
+      partidos.push(p);
+    });
   }
 }
+
 
 // Función para mostrar posiciones
 function mostrarPosiciones() {
