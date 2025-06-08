@@ -14,17 +14,21 @@ const fechas = ["13/6", "20/6", "27/6", "4/7", "11/7", "18/7", "1/8", "8/8"];
 const passwordAdmin = "Excursio2016";
 let adminLogged = false;
 
+// Generar fixture aleatorio
 function generarFixture() {
   partidos = [];
-  const equiposNombres = equipos.map(e => e.nombre);
 
-  // Generar todos contra todos (sin repetir partidos ni reversos)
-  let todosPartidos = [];
-  for (let i = 0; i < equiposNombres.length - 1; i++) {
-    for (let j = i + 1; j < equiposNombres.length; j++) {
-      todosPartidos.push({
-        local: equiposNombres[i],
-        visitante: equiposNombres[j],
+  const fechasLiga = fechas.slice(0, 5); // solo 5 fechas
+  const maxPartidosPorFecha = [3, 3, 3, 3, 3];
+  const partidosPorFecha = fechasLiga.map(() => []);
+
+  // Generar todas las combinaciones posibles sin repetir (todos contra todos)
+  const posiblesPartidos = [];
+  for (let i = 0; i < equipos.length - 1; i++) {
+    for (let j = i + 1; j < equipos.length; j++) {
+      posiblesPartidos.push({
+        local: equipos[i].nombre,
+        visitante: equipos[j].nombre,
         golesLocal: null,
         golesVisitante: null,
         fecha: null,
@@ -32,6 +36,30 @@ function generarFixture() {
       });
     }
   }
+
+  // Mezclar aleatoriamente los partidos
+  for (let i = posiblesPartidos.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [posiblesPartidos[i], posiblesPartidos[j]] = [posiblesPartidos[j], posiblesPartidos[i]];
+  }
+
+  // Repartir los partidos en las 5 fechas (3 por fecha)
+  let partidoIndex = 0;
+  for (let fechaIdx = 0; fechaIdx < fechasLiga.length; fechaIdx++) {
+    for (let i = 0; i < maxPartidosPorFecha[fechaIdx]; i++) {
+      if (partidoIndex < posiblesPartidos.length) {
+        const partido = posiblesPartidos[partidoIndex];
+        partido.fecha = fechasLiga[fechaIdx];
+        partido.horario = "Sin horario aún";
+        partidosPorFecha[fechaIdx].push(partido);
+        partidoIndex++;
+      }
+    }
+  }
+
+  partidos = partidosPorFecha.flat();
+}
+
 
   // Función shuffle Fisher-Yates para mezclar los partidos
   function shuffle(array) {
