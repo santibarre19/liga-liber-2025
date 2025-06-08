@@ -1,167 +1,153 @@
- script.js
+// script.js
 
-// ================= CONFIGURACIÓN INICIAL =================
-const password = "Excursio2016";
-let isAdmin = false;
+const PASSWORD = "Excursio2016";
 
-const equipos = [
-  { nombre: "Primero", escudo: "" },
-  { nombre: "Segundo Lenguas", escudo: "" },
-  { nombre: "Segundo Sociales", escudo: "" },
-  { nombre: "Cuarto", escudo: "" },
-  { nombre: "Quinto Lenguas", escudo: "" },
-  { nombre: "Quinto Sociales", escudo: "" }
-];
+// Estado inicial
+let data = {
+  equipos: [
+    { nombre: "Primero", escudo: "" },
+    { nombre: "Segundo Lenguas", escudo: "" },
+    { nombre: "Segundo Sociales", escudo: "" },
+    { nombre: "Cuarto", escudo: "" },
+    { nombre: "Quinto Lenguas", escudo: "" },
+    { nombre: "Quinto Sociales", escudo: "" }
+  ],
+  fixture: [],
+  resultados: [],
+  goleadores: {},
+  jugadores: {},
+};
 
-const fechas = [
-  "13/6", "20/6", "27/6", "4/7", "11/7", "18/7", "1/8", "8/8"
-];
-
-let fixture = [];
-let resultados = {};
-let goleadores = {};
-let jugadoresPorEquipo = {};
-
-// ================= UTILIDADES =================
+// Guardar y cargar del localStorage
 function guardarDatos() {
-  localStorage.setItem("fixture", JSON.stringify(fixture));
-  localStorage.setItem("resultados", JSON.stringify(resultados));
-  localStorage.setItem("goleadores", JSON.stringify(goleadores));
-  localStorage.setItem("jugadores", JSON.stringify(jugadoresPorEquipo));
+  localStorage.setItem("ligaLiber2025", JSON.stringify(data));
 }
 
 function cargarDatos() {
-  fixture = JSON.parse(localStorage.getItem("fixture")) || [];
-  resultados = JSON.parse(localStorage.getItem("resultados")) || {};
-  goleadores = JSON.parse(localStorage.getItem("goleadores")) || {};
-  jugadoresPorEquipo = JSON.parse(localStorage.getItem("jugadores")) || {};
+  const saved = localStorage.getItem("ligaLiber2025");
+  if (saved) {
+    data = JSON.parse(saved);
+  }
 }
 
-function verificarAdmin() {
-  const input = prompt("Ingresá la contraseña de administrador:");
-  if (input === password) {
-    isAdmin = true;
+// Verificar contraseña para acceder al modo administrador
+function verificarPassword() {
+  const input = prompt("Ingrese la contraseña para editar:");
+  if (input === PASSWORD) {
     document.body.classList.add("admin");
-    mostrarSeccionesAdmin();
   } else {
     alert("Contraseña incorrecta");
   }
 }
 
-function mostrarSeccionesAdmin() {
-  document.querySelectorAll(".admin-only").forEach(e => e.style.display = "block");
+// Renderizado de páginas
+function mostrarSeccion(id) {
+  document.querySelectorAll(".seccion").forEach(sec => sec.style.display = "none");
+  document.getElementById(id).style.display = "block";
 }
 
-// ================= RENDERIZADO =================
-function renderizarEquipos() {
-  const contenedor = document.getElementById("equipos");
-  contenedor.innerHTML = "";
-  equipos.forEach((e, idx) => {
-    contenedor.innerHTML += `<div>
-      <input type="text" value="${e.nombre}" onchange="cambiarNombreEquipo(${idx}, this.value)" ${!isAdmin ? 'disabled' : ''}/>
-      <input type="file" accept="image/*" onchange="cambiarEscudo(${idx}, this)" ${!isAdmin ? 'disabled' : ''}/>
-    </div>`;
+function actualizarEquipos() {
+  const lista = document.getElementById("lista-equipos");
+  lista.innerHTML = "";
+  data.equipos.forEach((equipo, i) => {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <input value="${equipo.nombre}" onchange="editarEquipo(${i}, this.value)">
+      <input type="file" onchange="cambiarEscudo(${i}, this)">
+      <img src="${equipo.escudo}" alt="Escudo" width="30">
+    `;
+    lista.appendChild(div);
   });
 }
 
-function cambiarNombreEquipo(idx, nuevoNombre) {
-  equipos[idx].nombre = nuevoNombre;
+function editarEquipo(i, nombre) {
+  data.equipos[i].nombre = nombre;
   guardarDatos();
 }
 
-function cambiarEscudo(idx, input) {
+function cambiarEscudo(i, input) {
   const reader = new FileReader();
-  reader.onload = function (e) {
-    equipos[idx].escudo = e.target.result;
+  reader.onload = () => {
+    data.equipos[i].escudo = reader.result;
     guardarDatos();
+    actualizarEquipos();
   };
   reader.readAsDataURL(input.files[0]);
 }
 
-function renderizarFixture() {
-  const contenedor = document.getElementById("fixture");
-  contenedor.innerHTML = "";
-  fixture.forEach((fecha, idx) => {
-    contenedor.innerHTML += `<h3>Fecha ${idx + 1} - ${fechas[idx]}</h3>`;
-    fecha.forEach((partido, i) => {
-      const id = `f${idx}-p${i}`;
-      const r = resultados[id] || { g1: "", g2: "", goleadores1: "", goleadores2: "" };
-      contenedor.innerHTML += `<div>
-        ${equipos[partido.e1].nombre} <input type="number" value="${r.g1}" onchange="editarResultado('${id}', 'g1', this.value)">
-        vs
-        <input type="number" value="${r.g2}" onchange="editarResultado('${id}', 'g2', this.value)"> ${equipos[partido.e2].nombre}
-        <br>Goleadores ${equipos[partido.e1].nombre}: <input type="text" value="${r.goleadores1}" onchange="editarResultado('${id}', 'goleadores1', this.value)">
-        <br>Goleadores ${equipos[partido.e2].nombre}: <input type="text" value="${r.goleadores2}" onchange="editarResultado('${id}', 'goleadores2', this.value)">
-      </div>`;
+// Fixture editable
+function generarFixture() {
+  // Implementación básica solo como placeholder
+  data.fixture = [
+    { fecha: "13/6", partidos: [ [0,1], [2,3], [4,5] ] },
+    { fecha: "20/6", partidos: [ [0,2], [1,4], [3,5] ] },
+    { fecha: "27/6", partidos: [ [0,3], [1,5], [2,4] ] },
+    { fecha: "4/7",  partidos: [ [0,4], [1,3], [2,5] ] },
+    { fecha: "11/7", partidos: [ [0,5], [1,2], [3,4] ] }
+  ];
+  guardarDatos();
+  renderFixture();
+}
+
+function renderFixture() {
+  const cont = document.getElementById("fixture");
+  cont.innerHTML = "";
+  data.fixture.forEach((fecha, i) => {
+    const div = document.createElement("div");
+    div.innerHTML = `<h4>Fecha ${i + 1} - ${fecha.fecha}</h4>`;
+    fecha.partidos.forEach(([a,b], j) => {
+      const res = data.resultados.find(r => r.fecha === i && r.partido === j);
+      div.innerHTML += `
+        <div>
+          ${data.equipos[a].nombre} vs ${data.equipos[b].nombre} - 
+          <span>${res ? res.golesA : "_"} - ${res ? res.golesB : "_"}</span>
+          ${document.body.classList.contains("admin") ? 
+            `<button onclick="editarResultado(${i},${j})">Editar</button>` : ""}
+        </div>
+      `;
     });
+    cont.appendChild(div);
   });
 }
 
-function editarResultado(id, campo, valor) {
-  if (!resultados[id]) resultados[id] = {};
-  resultados[id][campo] = valor;
-  guardarDatos();
-  renderizarTablaPosiciones();
-  renderizarGoleadores();
-}
+function editarResultado(fecha, partido) {
+  const [a, b] = data.fixture[fecha].partidos[partido];
+  const golesA = parseInt(prompt(`Goles de ${data.equipos[a].nombre}`));
+  const golesB = parseInt(prompt(`Goles de ${data.equipos[b].nombre}`));
+  const golesJugadoresA = prompt("Goleadores del equipo A (separados por coma)").split(",");
+  const golesJugadoresB = prompt("Goleadores del equipo B (separados por coma)").split(",");
+  data.resultados = data.resultados.filter(r => !(r.fecha === fecha && r.partido === partido));
+  data.resultados.push({ fecha, partido, a, b, golesA, golesB, golesJugadoresA, golesJugadoresB });
 
-function renderizarTablaPosiciones() {
-  const tabla = document.getElementById("posiciones");
-  let pts = equipos.map((e, idx) => ({ idx, nombre: e.nombre, pts: 0 }));
-
-  Object.keys(resultados).forEach(id => {
-    const [fecha, partido] = id.split("-");
-    const f = parseInt(fecha[1]);
-    const p = parseInt(partido[1]);
-    const juego = fixture[f][p];
-    const r = resultados[id];
-    const g1 = parseInt(r.g1);
-    const g2 = parseInt(r.g2);
-    if (!isNaN(g1) && !isNaN(g2)) {
-      if (g1 > g2) {
-        pts[juego.e1].pts += 3;
-      } else if (g1 < g2) {
-        pts[juego.e2].pts += 3;
-      } else {
-        pts[juego.e1].pts += 1;
-        pts[juego.e2].pts += 1;
-      }
+  // Actualizar tabla goleadores
+  [...golesJugadoresA, ...golesJugadoresB].forEach(nombre => {
+    const jugador = nombre.trim();
+    if (jugador) {
+      if (!data.goleadores[jugador]) data.goleadores[jugador] = 0;
+      data.goleadores[jugador]++;
     }
   });
+  guardarDatos();
+  renderFixture();
+  renderGoleadores();
+}
 
-  pts.sort((a, b) => b.pts - a.pts);
-  tabla.innerHTML = "<tr><th>Equipo</th><th>Puntos</th></tr>";
-  pts.forEach(e => {
-    tabla.innerHTML += `<tr><td>${e.nombre}</td><td>${e.pts}</td></tr>`;
+function renderGoleadores() {
+  const cont = document.getElementById("tabla-goleadores");
+  cont.innerHTML = "";
+  const lista = Object.entries(data.goleadores).sort((a,b) => b[1] - a[1]);
+  lista.forEach(([nombre, goles]) => {
+    const div = document.createElement("div");
+    div.textContent = `${nombre}: ${goles} goles`;
+    cont.appendChild(div);
   });
 }
 
-function renderizarGoleadores() {
-  const contenedor = document.getElementById("goleadores");
-  const cont = {};
-  Object.values(resultados).forEach(r => {
-    [r.goleadores1, r.goleadores2].forEach(lista => {
-      if (!lista) return;
-      lista.split(",").map(n => n.trim()).forEach(n => {
-        if (!n) return;
-        if (!cont[n]) cont[n] = 0;
-        cont[n]++;
-      });
-    });
-  });
-  const ordenado = Object.entries(cont).sort((a, b) => b[1] - a[1]);
-  contenedor.innerHTML = "<tr><th>Jugador</th><th>Goles</th></tr>";
-  ordenado.forEach(([nombre, goles]) => {
-    contenedor.innerHTML += `<tr><td>${nombre}</td><td>${goles}</td></tr>`;
-  });
-}
-
-// ================= INICIALIZAR =================
-window.onload = () => {
-  cargarDatos();
-  verificarAdmin();
-  renderizarEquipos();
-  renderizarFixture();
-  renderizarTablaPosiciones();
-  renderizarGoleadores();
-};
+// Inicializar
+cargarDatos();
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.location.hash === "#admin") verificarPassword();
+  renderFixture();
+  renderGoleadores();
+  actualizarEquipos();
+});
