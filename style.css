@@ -1,88 +1,57 @@
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: Arial, sans-serif;
   margin: 0;
-  background: linear-gradient(to bottom, #e8f5e9, #e3f2fd);
+  background: #f2f2f2;
   color: #333;
 }
 
 header {
-  background-color: #2e7d32;
+  background: #005c4b;
   color: white;
-  padding: 1rem;
+  padding: 10px;
   text-align: center;
 }
 
 nav {
-  background-color: #1b5e20;
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  padding: 0.5rem;
+  background: #00826a;
+  padding: 10px;
 }
 
 nav button {
-  background-color: #81c784;
+  background: white;
+  color: #00826a;
+  margin: 0 5px;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+  padding: 8px 15px;
+  border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
-  color: #003300;
 }
 
-nav button:hover {
-  background-color: #66bb6a;
-}
-
-section {
+.seccion {
   display: none;
-  padding: 1rem;
+  padding: 15px;
 }
 
-section.active {
+.visible {
   display: block;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1rem 0;
+  margin-top: 15px;
 }
 
 th, td {
-  border: 1px solid #bbb;
-  padding: 0.5rem;
-  text-align: center;
-}
-
-th {
-  background-color: #c8e6c9;
-}
-
-input[type="text"], input[type="number"], select {
-  padding: 0.4rem;
-  margin: 0.3rem;
-  border-radius: 6px;
   border: 1px solid #ccc;
-}
-
-button.save-btn {
-  background-color: #1565c0;
-  color: white;
-  border: none;
-  padding: 0.4rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-button.save-btn:hover {
-  background-color: #0d47a1;
-}
-
-footer {
+  padding: 8px;
   text-align: center;
-  padding: 1rem;
-  background-color: #c5e1a5;
-  margin-top: 2rem;
-  font-size: 0.9rem;
+}
+
+input, select {
+  padding: 5px;
+  margin: 5px;
 }
