@@ -1,249 +1,168 @@
-const PASSWORD = "Excursio2016";
-let isAdmin = false;
-
-document.addEventListener("DOMContentLoaded", () => {
-  if (!localStorage.getItem("isAdmin")) {
-    const pass = prompt("Contraseña para editar:");
-    if (pass === PASSWORD) {
-      isAdmin = true;
-      localStorage.setItem("isAdmin", "true");
-    } else {
-      isAdmin = false;
-    }
-  } else {
-    isAdmin = true;
-  }
-
-  mostrarSeccion("fixture");
-  generarEquipos();
-  generarFixture();
-  actualizarTabla();
-  actualizarGoleadores();
-});
-
-function mostrarSeccion(id) {
-  document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-
-const equiposIniciales = [
-  "Primero",
-  "Segundo Lenguas",
-  "Segundo Sociales",
-  "Cuarto",
-  "Quinto Lenguas",
-  "Quinto Sociales"
+const CONTRASENA = "Excursio2016";
+let esAdmin = false;
+let equipos = [
+  "Primero", "Segundo Lenguas", "Segundo Sociales",
+  "Cuarto", "Quinto Lenguas", "Quinto Sociales"
 ];
 
-function generarEquipos() {
-  if (!localStorage.getItem("equipos")) {
-    const data = equiposIniciales.map(nombre => ({ nombre, escudo: "" }));
-    localStorage.setItem("equipos", JSON.stringify(data));
+let resultados = JSON.parse(localStorage.getItem("resultados")) || [];
+let goleadores = JSON.parse(localStorage.getItem("goleadores")) || {};
+
+function checkPassword() {
+  const pass = document.getElementById("password").value;
+  if (pass === CONTRASENA) {
+    esAdmin = true;
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("mainContent").style.display = "block";
+    renderSecciones();
+  } else {
+    alert("Contraseña incorrecta.");
   }
 }
 
-function obtenerEquipos() {
-  return JSON.parse(localStorage.getItem("equipos"));
+function mostrarSeccion(id) {
+  document.querySelectorAll(".seccion").forEach(s => s.classList.remove("visible"));
+  document.getElementById(id).classList.add("visible");
 }
 
-function guardarEquipos(equipos) {
-  localStorage.setItem("equipos", JSON.stringify(equipos));
+function renderSecciones() {
+  renderFixture();
+  renderPosiciones();
+  renderGoleadores();
 }
 
-function generarFixture() {
-  const equipos = obtenerEquipos();
-  let partidos = JSON.parse(localStorage.getItem("partidos"));
+function renderFixture() {
+  const fixtureHTML = [];
+  const fechas = [
+    "13/6", "20/6", "27/6", "4/7", "11/7"
+  ];
 
-  if (!partidos) {
-    const fechas = [ "13/6", "20/6", "27/6", "4/7", "11/7" ];
-    const fixtureQuintoL = ["Primero", "Segundo Sociales", "Segundo Lenguas", "Quinto Sociales", "Cuarto"];
-    let usados = { "Quinto Lenguas": new Set() };
-    partidos = [];
+  // Generar fixture fijo para Quinto Lenguas y aleatorio para el resto
+  const partidos = [
+    ["Quinto Lenguas", "Primero"],
+    ["Quinto Lenguas", "Segundo Sociales"],
+    ["Quinto Lenguas", "Segundo Lenguas"],
+    ["Quinto Lenguas", "Quinto Sociales"],
+    ["Quinto Lenguas", "Cuarto"]
+  ];
 
-    let restantes = equipos.filter(eq => eq.nombre !== "Quinto Lenguas");
-    let usadoEnFecha = new Set();
-
-    for (let i = 0; i < fechas.length; i++) {
-      let fecha = fechas[i];
-      let equiposEnFecha = new Set();
-      let partidosFecha = [];
-
-      // Aseguramos que Quinto Lenguas juegue su partido fijo
-      const rival = fixtureQuintoL[i];
-      partidosFecha.push({ fecha, local: "Quinto Lenguas", visitante: rival, golesLocal: null, golesVisitante: null, goleadoresLocal: "", goleadoresVisitante: "" });
-      equiposEnFecha.add("Quinto Lenguas");
-      equiposEnFecha.add(rival);
-
-      // Buscamos el resto de partidos
-      for (let a = 0; a < equipos.length; a++) {
-        for (let b = a + 1; b < equipos.length; b++) {
-          const e1 = equipos[a].nombre;
-          const e2 = equipos[b].nombre;
-
-          if (
-            !equiposEnFecha.has(e1) &&
-            !equiposEnFecha.has(e2) &&
-            !fixtureQuintoL.includes(e1) && !fixtureQuintoL.includes(e2) &&
-            !partidos.some(p => (p.local === e1 && p.visitante === e2) || (p.local === e2 && p.visitante === e1))
-          ) {
-            partidosFecha.push({ fecha, local: e1, visitante: e2, golesLocal: null, golesVisitante: null, goleadoresLocal: "", goleadoresVisitante: "" });
-            equiposEnFecha.add(e1);
-            equiposEnFecha.add(e2);
-            break;
-          }
-        }
-        if (equiposEnFecha.size === 6) break;
-      }
-
-      partidos.push(...partidosFecha);
-    }
-
-    localStorage.setItem("partidos", JSON.stringify(partidos));
+  let usados = new Set(partidos.flat());
+  let restantes = equipos.filter(e => !usados.has(e));
+  while (partidos.length < 15) {
+    let [a, b] = [null, null];
+    do {
+      a = equipos[Math.floor(Math.random() * equipos.length)];
+      b = equipos[Math.floor(Math.random() * equipos.length)];
+    } while (a === b || partidos.some(p => (p[0] === a && p[1] === b) || (p[0] === b && p[1] === a)));
+    partidos.push([a, b]);
   }
 
-  renderFixture(partidos);
-}
-
-function renderFixture(partidos) {
-  const cont = document.getElementById("fixtureContent");
-  cont.innerHTML = "";
-
-  const fechasUnicas = [...new Set(partidos.map(p => p.fecha))];
-
-  fechasUnicas.forEach(fecha => {
-    const fechaDiv = document.createElement("div");
-    fechaDiv.innerHTML = `<h3>Fecha ${fecha}</h3>`;
-    const tabla = document.createElement("table");
-    const encabezado = `<tr><th>Local</th><th>Goles</th><th>Visitante</th><th>Goles</th>${isAdmin ? "<th>Goleadores</th><th>Acción</th>" : ""}</tr>`;
-    tabla.innerHTML = encabezado;
-
-    partidos.filter(p => p.fecha === fecha).forEach((p, index) => {
-      const fila = document.createElement("tr");
-
-      const golesL = p.golesLocal ?? "";
-      const golesV = p.golesVisitante ?? "";
-
-      if (isAdmin) {
-        fila.innerHTML = `
-          <td>${p.local}</td>
-          <td><input type="number" value="${golesL}" id="golL-${fecha}-${index}" /></td>
-          <td>${p.visitante}</td>
-          <td><input type="number" value="${golesV}" id="golV-${fecha}-${index}" /></td>
-          <td>
-            <input type="text" placeholder="Goleadores Local" value="${p.goleadoresLocal}" id="gl-${fecha}-${index}" />
-            <input type="text" placeholder="Goleadores Visitante" value="${p.goleadoresVisitante}" id="gv-${fecha}-${index}" />
-          </td>
-          <td><button class="save-btn" onclick="guardarResultado('${fecha}', ${index})">Guardar</button></td>
-        `;
+  fixtureHTML.push("<h2>Fixture</h2>");
+  fechas.forEach((fecha, i) => {
+    fixtureHTML.push(`<h3>Fecha ${i + 1} - ${fecha}</h3><table><tr><th>Partido</th><th>Resultado</th><th>Goleadores</th></tr>`);
+    for (let j = 0; j < 3; j++) {
+      const idx = i * 3 + j;
+      const [local, visitante] = partidos[idx];
+      const res = resultados.find(r => r.local === local && r.visitante === visitante);
+      if (esAdmin) {
+        fixtureHTML.push(`<tr><td>${local} vs ${visitante}</td><td><input data-index="${idx}" placeholder="Ej: 2-1"/></td>
+        <td><input data-index="${idx}" data-goles placeholder="Ej: Juan(2), Pedro"/></td></tr>`);
       } else {
-        fila.innerHTML = `
-          <td>${p.local}</td><td>${golesL}</td><td>${p.visitante}</td><td>${golesV}</td>
-        `;
-      }
-
-      tabla.appendChild(fila);
-    });
-
-    fechaDiv.appendChild(tabla);
-    cont.appendChild(fechaDiv);
-  });
-}
-
-function guardarResultado(fecha, index) {
-  let partidos = JSON.parse(localStorage.getItem("partidos"));
-  const partidosFecha = partidos.filter(p => p.fecha === fecha);
-  const p = partidosFecha[index];
-
-  const golesL = parseInt(document.getElementById(`golL-${fecha}-${index}`).value);
-  const golesV = parseInt(document.getElementById(`golV-${fecha}-${index}`).value);
-  const goleadoresL = document.getElementById(`gl-${fecha}-${index}`).value;
-  const goleadoresV = document.getElementById(`gv-${fecha}-${index}`).value;
-
-  const i = partidos.findIndex(x => x.fecha === fecha && x.local === p.local && x.visitante === p.visitante);
-  partidos[i].golesLocal = golesL;
-  partidos[i].golesVisitante = golesV;
-  partidos[i].goleadoresLocal = goleadoresL;
-  partidos[i].goleadoresVisitante = goleadoresV;
-
-  localStorage.setItem("partidos", JSON.stringify(partidos));
-
-  actualizarTabla();
-  actualizarGoleadores();
-  generarFixture();
-}
-
-function actualizarTabla() {
-  const equipos = obtenerEquipos().map(eq => ({ ...eq, puntos: 0, gf: 0, gc: 0, pj: 0 }));
-  const partidos = JSON.parse(localStorage.getItem("partidos"));
-
-  partidos.forEach(p => {
-    if (p.golesLocal !== null && p.golesVisitante !== null) {
-      const eqL = equipos.find(e => e.nombre === p.local);
-      const eqV = equipos.find(e => e.nombre === p.visitante);
-
-      eqL.gf += p.golesLocal;
-      eqL.gc += p.golesVisitante;
-      eqL.pj += 1;
-
-      eqV.gf += p.golesVisitante;
-      eqV.gc += p.golesLocal;
-      eqV.pj += 1;
-
-      if (p.golesLocal > p.golesVisitante) eqL.puntos += 3;
-      else if (p.golesLocal < p.golesVisitante) eqV.puntos += 3;
-      else {
-        eqL.puntos += 1;
-        eqV.puntos += 1;
+        fixtureHTML.push(`<tr><td>${local} vs ${visitante}</td><td>${res ? res.resultado : "-"}</td>
+        <td>${res ? res.goleadores : "-"}</td></tr>`);
       }
     }
+    fixtureHTML.push("</table>");
   });
 
-  equipos.sort((a, b) => b.puntos - a.puntos || (b.gf - b.gc) - (a.gf - a.gc));
+  if (esAdmin) {
+    fixtureHTML.push(`<button onclick="guardarResultados()">Guardar Resultados</button>`);
+  }
 
-  const tabla = document.getElementById("tablaPosiciones");
-  tabla.innerHTML = `
-    <tr><th>Equipo</th><th>PJ</th><th>GF</th><th>GC</th><th>DIF</th><th>Puntos</th></tr>
-  `;
+  document.getElementById("fixture").innerHTML = fixtureHTML.join("");
+}
 
+function guardarResultados() {
+  const inputs = document.querySelectorAll("input[data-index]");
+  resultados = [];
+  goleadores = {};
+  for (let i = 0; i < inputs.length; i += 2) {
+    const idx = parseInt(inputs[i].dataset.index);
+    const resultado = inputs[i].value.trim();
+    const goleadoresTexto = inputs[i + 1].value.trim();
+    if (!resultado) continue;
+    const [local, visitante] = getPartidoPorIndice(idx);
+    resultados.push({ local, visitante, resultado, goleadores: goleadoresTexto });
+
+    // Contar goles por jugador
+    const matches = [...goleadoresTexto.matchAll(/([A-Za-zÁÉÍÓÚÑáéíóúñ\s]+)\((\d+)\)/g)];
+    for (const [, nombre, goles] of matches) {
+      const jugador = nombre.trim();
+      goleadores[jugador] = (goleadores[jugador] || 0) + parseInt(goles);
+    }
+  }
+  localStorage.setItem("resultados", JSON.stringify(resultados));
+  localStorage.setItem("goleadores", JSON.stringify(goleadores));
+  renderSecciones();
+}
+
+function getPartidoPorIndice(idx) {
+  const fijos = [
+    ["Quinto Lenguas", "Primero"],
+    ["Quinto Lenguas", "Segundo Sociales"],
+    ["Quinto Lenguas", "Segundo Lenguas"],
+    ["Quinto Lenguas", "Quinto Sociales"],
+    ["Quinto Lenguas", "Cuarto"]
+  ];
+  const usados = new Set(fijos.flat());
+  const restantes = equipos.filter(e => !usados.has(e));
+  let partidos = [...fijos];
+  while (partidos.length < 15) {
+    let [a, b] = [null, null];
+    do {
+      a = equipos[Math.floor(Math.random() * equipos.length)];
+      b = equipos[Math.floor(Math.random() * equipos.length)];
+    } while (a === b || partidos.some(p => (p[0] === a && p[1] === b) || (p[0] === b && p[1] === a)));
+    partidos.push([a, b]);
+  }
+  return partidos[idx];
+}
+
+function renderPosiciones() {
+  const tabla = {};
   equipos.forEach(eq => {
-    tabla.innerHTML += `
-      <tr>
-        <td>${eq.nombre}</td>
-        <td>${eq.pj}</td>
-        <td>${eq.gf}</td>
-        <td>${eq.gc}</td>
-        <td>${eq.gf - eq.gc}</td>
-        <td>${eq.puntos}</td>
-      </tr>
-    `;
+    tabla[eq] = { pts: 0, pj: 0, gf: 0, gc: 0, dg: 0 };
   });
+
+  for (const { local, visitante, resultado } of resultados) {
+    const [g1, g2] = resultado.split("-").map(n => parseInt(n));
+    if (isNaN(g1) || isNaN(g2)) continue;
+    tabla[local].pj++; tabla[visitante].pj++;
+    tabla[local].gf += g1; tabla[local].gc += g2;
+    tabla[visitante].gf += g2; tabla[visitante].gc += g1;
+    tabla[local].dg = tabla[local].gf - tabla[local].gc;
+    tabla[visitante].dg = tabla[visitante].gf - tabla[visitante].gc;
+
+    if (g1 > g2) tabla[local].pts += 3;
+    else if (g2 > g1) tabla[visitante].pts += 3;
+    else { tabla[local].pts++; tabla[visitante].pts++; }
+  }
+
+  const posicionesHTML = [];
+  posicionesHTML.push("<h2>Tabla de Posiciones</h2><table><tr><th>Equipo</th><th>PTS</th><th>PJ</th><th>GF</th><th>GC</th><th>DG</th></tr>");
+  Object.entries(tabla).sort((a, b) => b[1].pts - a[1].pts || b[1].dg - a[1].dg || b[1].gf - a[1].gf).forEach(([eq, stats]) => {
+    posicionesHTML.push(`<tr><td>${eq}</td><td>${stats.pts}</td><td>${stats.pj}</td><td>${stats.gf}</td><td>${stats.gc}</td><td>${stats.dg}</td></tr>`);
+  });
+  posicionesHTML.push("</table>");
+  document.getElementById("posiciones").innerHTML = posicionesHTML.join("");
 }
 
-function actualizarGoleadores() {
-  const partidos = JSON.parse(localStorage.getItem("partidos"));
-  const goles = {};
-
-  partidos.forEach(p => {
-    if (p.goleadoresLocal) {
-      p.goleadoresLocal.split(",").map(n => n.trim()).forEach(n => {
-        if (!n) return;
-        goles[n] = (goles[n] || 0) + 1;
-      });
-    }
-    if (p.goleadoresVisitante) {
-      p.goleadoresVisitante.split(",").map(n => n.trim()).forEach(n => {
-        if (!n) return;
-        goles[n] = (goles[n] || 0) + 1;
-      });
-    }
+function renderGoleadores() {
+  const goleadoresHTML = [];
+  goleadoresHTML.push("<h2>Tabla de Goleadores</h2><table><tr><th>Jugador</th><th>Goles</th></tr>");
+  Object.entries(goleadores).sort((a, b) => b[1] - a[1]).forEach(([nombre, goles]) => {
+    goleadoresHTML.push(`<tr><td>${nombre}</td><td>${goles}</td></tr>`);
   });
-
-  const goleadores = Object.entries(goles).sort((a, b) => b[1] - a[1]);
-
-  const cont = document.getElementById("tablaGoleadores");
-  cont.innerHTML = `<tr><th>Jugador</th><th>Goles</th></tr>`;
-
-  goleadores.forEach(([nombre, goles]) => {
-    cont.innerHTML += `<tr><td>${nombre}</td><td>${goles}</td></tr>`;
-  });
+  goleadoresHTML.push("</table>");
+  document.getElementById("goleadores").innerHTML = goleadoresHTML.join("");
 }
