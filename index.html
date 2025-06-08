@@ -2,43 +2,77 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LIGA LIBER 2025</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <header>
+    <h1>LIGA LIBER 2025</h1>
+    <nav>
+      <button onclick="mostrarSeccion('posiciones')">Posiciones</button>
+      <button onclick="mostrarSeccion('fixture')">Fixture</button>
+      <button onclick="mostrarSeccion('goleadores')">Goleadores</button>
+      <button onclick="mostrarSeccion('faseFinal')">Fase Final</button>
+    </nav>
+  </header>
 
-<header>
-  <h1>LIGA LIBER 2025</h1>
-</header>
+  <main>
+    <section id="posiciones" class="seccion">
+      <h2>Tabla de Posiciones</h2>
+      <table id="tabla-posiciones">
+        <thead>
+          <tr>
+            <th>Equipo</th>
+            <th>Pts</th>
+            <th>PJ</th>
+            <th>PG</th>
+            <th>PE</th>
+            <th>PP</th>
+            <th>GF</th>
+            <th>GC</th>
+            <th>DIF</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
 
-<nav>
-  <button onclick="mostrarSeccion('posiciones')">Posiciones</button>
-  <button onclick="mostrarSeccion('fixture')">Fixture</button>
-  <button onclick="mostrarSeccion('goleadores')">Goleadores</button>
-  <button onclick="mostrarSeccion('administracion')">Administración</button>
-</nav>
+    <section id="fixture" class="seccion oculto">
+      <h2>Fixture y Resultados</h2>
+      <div id="fixture-container"></div>
+    </section>
 
-<main>
-  <section id="posiciones" class="active"></section>
-  <section id="fixture"></section>
-  <section id="goleadores"></section>
-  <section id="administracion"></section>
-</main>
+    <section id="goleadores" class="seccion oculto">
+      <h2>Tabla de Goleadores</h2>
+      <table id="tabla-goleadores">
+        <thead>
+          <tr>
+            <th>Jugador</th>
+            <th>Equipo</th>
+            <th>Goles</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
 
-<script src="script.js"></script>
-<script>
-  function mostrarSeccion(id) {
-    document.querySelectorAll('main section').forEach(sec => {
-      sec.classList.remove('active');
-    });
-    document.getElementById(id).classList.add('active');
-  }
-  
-  // Inicializamos la página mostrando posiciones y administración sin login
-  mostrarSeccion('posiciones');
-  mostrarAdministracion();
-</script>
+    <section id="faseFinal" class="seccion oculto">
+      <h2>Fase Final</h2>
+      <div id="fase-final">
+        <p>Los primeros 2 equipos pasan directo a semifinal. Los otros 4 juegan playoffs.</p>
+        <div id="playoffs"></div>
+        <div id="semifinales"></div>
+        <div id="tercer-puesto"></div>
+        <div id="final"></div>
+      </div>
+    </section>
+  </main>
 
+  <footer>
+    <p>Organiza Barre – LIGA LIBER 2025</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
