@@ -1,113 +1,105 @@
-/* style.css */
-
 body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f4f4f4;
   margin: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f0f4f8;
+  padding: 0;
   color: #333;
 }
 
 header {
-  background: linear-gradient(90deg, #007a33, #004b87);
+  background: #006699;
   color: white;
   padding: 1rem;
   text-align: center;
-  font-size: 1.5rem;
-  font-weight: bold;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
 }
 
 nav {
-  display: flex;
-  justify-content: space-around;
-  background-color: #e1eefe;
-  padding: 0.5rem;
-  flex-wrap: wrap;
+  margin-top: 1rem;
 }
 
 nav button {
-  background-color: #004b87;
-  color: white;
-  border: none;
+  margin: 0.25rem;
   padding: 0.5rem 1rem;
-  margin: 0.3rem;
-  border-radius: 5px;
+  background: white;
+  color: #006699;
+  border: 2px solid #006699;
+  border-radius: 10px;
+  font-weight: bold;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 nav button:hover {
-  background-color: #006341;
+  background: #006699;
+  color: white;
 }
 
-section {
-  display: none;
+main {
   padding: 1rem;
 }
 
-section.active {
+.section {
+  display: none;
+}
+
+.section.visible {
   display: block;
 }
 
-.table {
+#tabla-posiciones, #fixture-container, #tabla-goleadores, #equipos-container {
+  margin-top: 1rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  overflow-x: auto;
+}
+
+table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
 }
 
-.table th, .table td {
+th, td {
   padding: 0.5rem;
-  border: 1px solid #ccc;
   text-align: center;
+  border-bottom: 1px solid #ccc;
 }
 
-.table th {
-  background-color: #004b87;
-  color: white;
+tr:nth-child(even) {
+  background-color: #f2f2f2;
 }
 
-input, select {
-  padding: 0.4rem;
-  margin: 0.3rem 0;
-  width: 100%;
-  box-sizing: border-box;
+h2, h3 {
+  margin-top: 0;
+  color: #006699;
 }
 
-.admin-section {
-  background-color: #ffffff;
-  border: 1px solid #ccc;
-  padding: 1rem;
-  margin: 1rem 0;
-  border-radius: 10px;
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 100px;
 }
 
-label {
-  display: block;
-  margin-top: 0.5rem;
+.login-container input, .login-container button {
+  margin: 0.5rem;
+  padding: 0.5rem;
+  font-size: 1rem;
 }
 
-button.save-btn {
-  margin-top: 1rem;
-  background-color: #007a33;
+.hidden {
+  display: none;
 }
 
-footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: #004b87;
-  color: white;
-  margin-top: 2rem;
-}
-
-img.logo {
-  max-height: 30px;
-  margin-right: 10px;
+img {
+  max-width: 30px;
+  height: auto;
   vertical-align: middle;
-}
-
-@media screen and (max-width: 600px) {
-  nav {
-    flex-direction: column;
-  }
-  nav button {
-    width: 100%;
-  }
+  margin-right: 8px;
 }
