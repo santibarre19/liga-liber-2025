@@ -14,12 +14,10 @@ const fechas = ["13/6", "20/6", "27/6", "4/7", "11/7", "18/7", "1/8", "8/8"];
 const passwordAdmin = "Excursio2016";
 let adminLogged = false;
 
-// Generar fixture aleatorio, con orden para Deportivo Dioskiera
+// Generar fixture aleatorio
 function generarFixture() {
   partidos = [];
-  // Equipos en orden Deportivo Dioskiera fijo: primero, segundo sociales, segundo lenguas, quinto sociales, cuarto
   // Como el torneo es todos contra todos (5 partidos cada uno y juegan una vez por fecha)
-  let ordenEquipos = ["Primero", "Segundo Sociales", "Segundo Lenguas", "Villa Sapito", "Cuarto"];
   
   // Comenzamos con los partidos de la liga (fase todos contra todos)
   // Usamos equipos originales y el orden que mencionaste, pero manteniendo la lógica
@@ -28,7 +26,7 @@ function generarFixture() {
   // Equipos indexados
   const equiposNombres = equipos.map(e => e.nombre);
   
-  // Generamos todos contra todos (sin repetir partidos y sin que se enfrenten con ellos mismos)
+  // Generamos todos contra todos (sin repetir partidos, sin que se enfrenten con ellos mismos y jugando un partido por fecha)
   for (let i = 0; i < equipos.length - 1; i++) {
     for (let j = i + 1; j < equipos.length; j++) {
       partidos.push({
