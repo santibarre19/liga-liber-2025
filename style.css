@@ -1,57 +1,113 @@
+/* style.css */
+
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
-  background: #f2f2f2;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f4f8;
   color: #333;
 }
 
 header {
-  background: #005c4b;
+  background: linear-gradient(90deg, #007a33, #004b87);
   color: white;
-  padding: 10px;
+  padding: 1rem;
   text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 nav {
   display: flex;
-  justify-content: center;
-  background: #00826a;
-  padding: 10px;
+  justify-content: space-around;
+  background-color: #e1eefe;
+  padding: 0.5rem;
+  flex-wrap: wrap;
 }
 
 nav button {
-  background: white;
-  color: #00826a;
-  margin: 0 5px;
+  background-color: #004b87;
+  color: white;
   border: none;
-  padding: 8px 15px;
+  padding: 0.5rem 1rem;
+  margin: 0.3rem;
   border-radius: 5px;
   cursor: pointer;
-  font-weight: bold;
 }
 
-.seccion {
+nav button:hover {
+  background-color: #006341;
+}
+
+section {
   display: none;
-  padding: 15px;
+  padding: 1rem;
 }
 
-.visible {
+section.active {
   display: block;
 }
 
-table {
+.table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
+  margin-top: 1rem;
 }
 
-th, td {
+.table th, .table td {
+  padding: 0.5rem;
   border: 1px solid #ccc;
-  padding: 8px;
   text-align: center;
 }
 
+.table th {
+  background-color: #004b87;
+  color: white;
+}
+
 input, select {
-  padding: 5px;
-  margin: 5px;
+  padding: 0.4rem;
+  margin: 0.3rem 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-section {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 10px;
+}
+
+label {
+  display: block;
+  margin-top: 0.5rem;
+}
+
+button.save-btn {
+  margin-top: 1rem;
+  background-color: #007a33;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #004b87;
+  color: white;
+  margin-top: 2rem;
+}
+
+img.logo {
+  max-height: 30px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+@media screen and (max-width: 600px) {
+  nav {
+    flex-direction: column;
+  }
+  nav button {
+    width: 100%;
+  }
 }
